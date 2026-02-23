@@ -1,4 +1,4 @@
-import type { Question, Participant } from "@/lib/types";
+import type { Participant, Question } from "@/lib/types";
 import { CheckCircle2, XCircle } from "lucide-react";
 
 interface ResultsScreenProps {
@@ -21,7 +21,6 @@ export function ResultsScreen({
   return (
     <main className="flex min-h-dvh flex-col items-center justify-center bg-background px-4 py-8">
       <div className="flex w-full max-w-md flex-col items-center gap-6">
-        {/* Result indicator */}
         {didNotAnswer ? (
           <div className="flex flex-col items-center gap-2">
             <XCircle className="h-16 w-16 text-muted-foreground" />
@@ -49,7 +48,6 @@ export function ResultsScreen({
           </div>
         )}
 
-        {/* Score */}
         {participant && (
           <div className="rounded-xl border border-border bg-card px-6 py-4 text-center">
             <p className="text-sm text-muted-foreground">Your Score</p>

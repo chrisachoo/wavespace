@@ -1,13 +1,13 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
-import { createClient } from "@/lib/supabase/client";
-import type { Quiz, Question, Participant } from "@/lib/types";
+import { FinishedScreen } from "@/components/play/finished-screen";
+import { LeaderboardScreen } from "@/components/play/leaderboard-screen";
 import { LobbyScreen } from "@/components/play/lobby-screen";
 import { QuestionScreen } from "@/components/play/question-screen";
 import { ResultsScreen } from "@/components/play/results-screen";
-import { LeaderboardScreen } from "@/components/play/leaderboard-screen";
-import { FinishedScreen } from "@/components/play/finished-screen";
+import { createClient } from "@/lib/supabase/client";
+import type { Participant, Question, Quiz } from "@/lib/types";
+import { useCallback, useEffect, useState } from "react";
 
 interface PlayClientProps {
   quizId: string;
@@ -58,7 +58,6 @@ export function PlayClient({ quizId, participantId }: PlayClientProps) {
     fetchData();
   }, [fetchData]);
 
-  // Subscribe to quiz status changes via Supabase Realtime
   useEffect(() => {
     const supabase = createClient();
 
@@ -75,12 +74,10 @@ export function PlayClient({ quizId, participantId }: PlayClientProps) {
         (payload) => {
           const updated = payload.new as Quiz;
           setQuiz(updated);
-          // Reset answer state when new question arrives
           if (updated.status === "question") {
             setHasAnswered(false);
             setSelectedOption(null);
           }
-          // Re-fetch participants for leaderboard updates
           if (
             updated.status === "results" ||
             updated.status === "leaderboard" ||
@@ -99,7 +96,6 @@ export function PlayClient({ quizId, participantId }: PlayClientProps) {
           filter: `quiz_id=eq.${quizId}`,
         },
         () => {
-          // Re-fetch participants when someone joins or scores update
           const supabase2 = createClient();
           supabase2
             .from("participants")
@@ -109,7 +105,6 @@ export function PlayClient({ quizId, participantId }: PlayClientProps) {
             .then(({ data }) => {
               if (data) setParticipants(data);
             });
-          // Refresh current participant score
           supabase2
             .from("participants")
             .select("*")
@@ -148,7 +143,6 @@ export function PlayClient({ quizId, participantId }: PlayClientProps) {
       is_correct: isCorrect,
     });
 
-    // Update score if correct (10 points per correct answer)
     if (isCorrect && currentParticipant) {
       await supabase
         .from("participants")

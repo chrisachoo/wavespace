@@ -1,13 +1,13 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { CreateQuizForm } from "@/components/admin/create-quiz-form";
+import { QuizDetail } from "@/components/admin/quiz-detail";
+import { QuizList } from "@/components/admin/quiz-list";
+import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/client";
 import type { Quiz } from "@/lib/types";
-import { CreateQuizForm } from "@/components/admin/create-quiz-form";
-import { QuizList } from "@/components/admin/quiz-list";
-import { QuizDetail } from "@/components/admin/quiz-detail";
-import { Radio, Plus, ArrowLeft } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { ArrowLeft, Plus, Radio } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
 
 type View = "list" | "create" | "detail";
 
@@ -50,7 +50,6 @@ export function AdminDashboard() {
 
   return (
     <div className="min-h-dvh bg-background">
-      {/* Header */}
       <header className="sticky top-0 z-10 border-b border-border bg-card/80 backdrop-blur-sm">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
           <div className="flex items-center gap-3">
@@ -76,14 +75,17 @@ export function AdminDashboard() {
         </div>
       </header>
 
-      {/* Content */}
       <main className="mx-auto max-w-5xl px-4 py-6">
         {loading ? (
           <div className="flex items-center justify-center py-20">
             <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
           </div>
         ) : view === "list" ? (
-          <QuizList quizzes={quizzes} onSelect={handleSelectQuiz} onRefresh={fetchQuizzes} />
+          <QuizList
+            quizzes={quizzes}
+            onSelect={handleSelectQuiz}
+            onRefresh={fetchQuizzes}
+          />
         ) : view === "create" ? (
           <CreateQuizForm onCreated={handleQuizCreated} onCancel={handleBack} />
         ) : selectedQuizId ? (

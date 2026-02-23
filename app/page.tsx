@@ -5,7 +5,6 @@ export default function HomePage() {
   return (
     <main className="flex min-h-dvh flex-col items-center justify-center bg-background px-4 py-12">
       <div className="flex w-full max-w-md flex-col items-center gap-8">
-        {/* Brand */}
         <div className="flex flex-col items-center gap-3">
           <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary text-primary-foreground">
             <Radio className="h-7 w-7" />
@@ -18,12 +17,10 @@ export default function HomePage() {
           </p>
         </div>
 
-        {/* Join Card */}
         <div className="w-full rounded-2xl border border-border bg-card p-6 shadow-sm">
           <JoinQuizForm />
         </div>
 
-        {/* Footer */}
         <p className="text-xs text-muted-foreground text-center">
           Ask your host for the quiz code to get started.
         </p>

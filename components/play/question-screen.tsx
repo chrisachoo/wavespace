@@ -1,7 +1,7 @@
 "use client";
 
 import type { Question } from "@/lib/types";
-import { Timer, CheckCircle2 } from "lucide-react";
+import { CheckCircle2, Timer } from "lucide-react";
 import { useEffect, useState } from "react";
 
 interface QuestionScreenProps {
@@ -14,10 +14,10 @@ interface QuestionScreenProps {
 }
 
 const OPTION_COLORS = [
-  "bg-[oklch(0.65_0.2_25)] hover:bg-[oklch(0.6_0.22_25)] text-white",       // Red/coral
-  "bg-[oklch(0.6_0.18_250)] hover:bg-[oklch(0.55_0.2_250)] text-white",      // Blue
-  "bg-[oklch(0.65_0.19_145)] hover:bg-[oklch(0.6_0.21_145)] text-white",     // Green
-  "bg-[oklch(0.7_0.17_55)] hover:bg-[oklch(0.65_0.19_55)] text-white",       // Amber/yellow
+  "bg-[oklch(0.65_0.2_25)] hover:bg-[oklch(0.6_0.22_25)] text-white", // Red/coral
+  "bg-[oklch(0.6_0.18_250)] hover:bg-[oklch(0.55_0.2_250)] text-white", // Blue
+  "bg-[oklch(0.65_0.19_145)] hover:bg-[oklch(0.6_0.21_145)] text-white", // Green
+  "bg-[oklch(0.7_0.17_55)] hover:bg-[oklch(0.65_0.19_55)] text-white", // Amber/yellow
 ];
 
 const OPTION_SELECTED_COLORS = [
@@ -61,7 +61,6 @@ export function QuestionScreen({
 
   return (
     <main className="flex min-h-dvh flex-col bg-background">
-      {/* Header */}
       <header className="flex items-center justify-between px-4 py-3 border-b border-border bg-card">
         <span className="text-sm font-medium text-muted-foreground">
           {questionIndex + 1} / {totalQuestions}
@@ -78,13 +77,11 @@ export function QuestionScreen({
         </div>
       </header>
 
-      {/* Question */}
       <div className="flex flex-1 flex-col items-center justify-center gap-8 px-4 py-8">
         <h2 className="text-xl font-bold text-foreground text-balance text-center leading-relaxed max-w-2xl">
           {question.question_text}
         </h2>
 
-        {/* Options */}
         <div className="grid w-full max-w-2xl grid-cols-1 gap-3 sm:grid-cols-2">
           {options.map((option, index) => {
             const isSelected = selectedOption === index;
@@ -113,9 +110,7 @@ export function QuestionScreen({
         )}
 
         {!hasAnswered && timeLeft <= 0 && (
-          <p className="text-sm text-destructive font-medium">
-            {"Time's up!"}
-          </p>
+          <p className="text-sm text-destructive font-medium">{"Time's up!"}</p>
         )}
       </div>
     </main>

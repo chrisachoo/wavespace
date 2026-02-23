@@ -1,6 +1,10 @@
 import { PlayClient } from "@/components/play/play-client";
 import { redirect } from "next/navigation";
 
+export const metadata = {
+  title: "Quiz | Wavespace",
+};
+
 export default async function PlayPage({
   params,
   searchParams,

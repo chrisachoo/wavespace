@@ -1,17 +1,3 @@
-/**
- * Wavespace DB seed runner
- *
- * Run any SQL file against the database using DATABASE_URL (direct Postgres connection string).
- *
- * Usage:
- *   bun run scripts/seed.ts [path/to/file.sql]
- *   bun run db:seed scripts/002_seed_stack_quiz.sql
- *
- * If no file is passed, runs scripts/002_seed_stack_quiz.sql by default.
- *
- * Set DATABASE_URL in .env (from Supabase: Project Settings → Database → Connection string).
- */
-
 import { readFileSync } from "fs";
 import { resolve } from "path";
 import postgres from "postgres";
@@ -46,7 +32,6 @@ async function main() {
       process.exit(1);
     }
     console.log(`Running: ${filePath}`);
-    // Run as one script; postgres.js supports multiple statements in unsafe mode
     await sql.unsafe(content);
     console.log("Seed completed successfully.");
   } catch (err) {

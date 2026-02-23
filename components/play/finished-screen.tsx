@@ -25,7 +25,6 @@ export function FinishedScreen({
           <h2 className="text-2xl font-bold text-foreground">Quiz Complete!</h2>
         </div>
 
-        {/* Personal result */}
         {me && (
           <div className="w-full rounded-xl border-2 border-primary bg-primary/5 p-6 text-center">
             <p className="text-sm text-muted-foreground">Your Final Result</p>
@@ -38,7 +37,6 @@ export function FinishedScreen({
           </div>
         )}
 
-        {/* Top 3 podium */}
         <div className="w-full flex flex-col gap-2">
           {sorted.slice(0, 5).map((p, index) => {
             const isMe = p.id === currentParticipantId;

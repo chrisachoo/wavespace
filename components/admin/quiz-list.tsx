@@ -1,10 +1,11 @@
 "use client";
 
-import type { Quiz } from "@/lib/types";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/client";
-import { Copy, Trash2, FileText } from "lucide-react";
+import type { Quiz } from "@/lib/types";
+import { Copy, FileText, Trash2 } from "lucide-react";
+import { useState } from "react";
 
 interface QuizListProps {
   quizzes: Quiz[];
@@ -23,6 +24,8 @@ const STATUS_COLORS: Record<string, string> = {
 };
 
 export function QuizList({ quizzes, onSelect, onRefresh }: QuizListProps) {
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+
   async function handleDelete(quizId: string) {
     const supabase = createClient();
     await supabase.from("quizzes").delete().eq("id", quizId);
@@ -58,16 +61,16 @@ export function QuizList({ quizzes, onSelect, onRefresh }: QuizListProps) {
             <div className="flex items-center gap-2">
               <span className="font-medium text-foreground">{quiz.title}</span>
               <Badge
-                className={`border-0 text-xs ${STATUS_COLORS[quiz.status] || ""}`}
+                className={`border-0 text-xs ${
+                  STATUS_COLORS[quiz.status] || ""
+                }`}
               >
                 {quiz.status}
               </Badge>
             </div>
             <div className="flex items-center gap-3 text-xs text-muted-foreground">
               <span className="font-mono tracking-wider">{quiz.code}</span>
-              <span>
-                {new Date(quiz.created_at).toLocaleDateString()}
-              </span>
+              <span>{new Date(quiz.created_at).toLocaleDateString()}</span>
             </div>
           </div>
           <div className="flex items-center gap-1">
@@ -77,10 +80,16 @@ export function QuizList({ quizzes, onSelect, onRefresh }: QuizListProps) {
               onClick={(e) => {
                 e.stopPropagation();
                 navigator.clipboard.writeText(quiz.code);
+                setCopiedId(quiz.id);
+                setTimeout(() => setCopiedId(null), 2000);
               }}
               title="Copy code"
             >
-              <Copy className="h-4 w-4" />
+              {copiedId === quiz.id ? (
+                <span className="text-xs text-primary">Copied!</span>
+              ) : (
+                <Copy className="h-4 w-4" />
+              )}
               <span className="sr-only">Copy quiz code</span>
             </Button>
             <Button

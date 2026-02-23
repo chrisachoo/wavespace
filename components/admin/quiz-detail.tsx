@@ -27,6 +27,7 @@ export function QuizDetail({ quizId, onBack }: QuizDetailProps) {
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [answers, setAnswers] = useState<Answer[]>([]);
   const [loading, setLoading] = useState(true);
+  const [codeCopied, setCodeCopied] = useState(false);
 
   const fetchAll = useCallback(async () => {
     const supabase = createClient();
@@ -57,7 +58,6 @@ export function QuizDetail({ quizId, onBack }: QuizDetailProps) {
     fetchAll();
   }, [fetchAll]);
 
-  // Realtime: listen for quiz status changes, participant joins, and answer submissions
   useEffect(() => {
     const supabase = createClient();
 
@@ -175,7 +175,6 @@ export function QuizDetail({ quizId, onBack }: QuizDetailProps) {
 
   return (
     <div className="flex flex-col gap-6">
-      {/* Quiz header info */}
       <div className="flex flex-col gap-2">
         <div className="flex items-center justify-between flex-wrap gap-2">
           <h2 className="text-xl font-bold text-foreground">{quiz.title}</h2>
@@ -190,12 +189,21 @@ export function QuizDetail({ quizId, onBack }: QuizDetailProps) {
               {quiz.status}
             </Badge>
             <button
-              onClick={() => navigator.clipboard.writeText(quiz.code)}
+              type="button"
+              onClick={() => {
+                navigator.clipboard.writeText(quiz.code);
+                setCodeCopied(true);
+                setTimeout(() => setCodeCopied(false), 2000);
+              }}
               className="flex items-center gap-1.5 rounded-md bg-secondary px-2.5 py-1 text-sm font-mono text-secondary-foreground hover:bg-muted transition-colors"
-              title="Click to copy code"
+              title="Copy code"
             >
               {quiz.code}
-              <Copy className="h-3 w-3" />
+              {codeCopied ? (
+                <span className="text-xs text-primary">Copied!</span>
+              ) : (
+                <Copy className="h-3 w-3" />
+              )}
             </button>
           </div>
         </div>
@@ -208,7 +216,6 @@ export function QuizDetail({ quizId, onBack }: QuizDetailProps) {
         </div>
       </div>
 
-      {/* Host controls – you advance the quiz with these buttons */}
       <div className="rounded-xl border-2 border-primary/30 bg-primary/5 p-5">
         <h3 className="text-base font-semibold text-foreground mb-1">
           Host controls
@@ -291,7 +298,6 @@ export function QuizDetail({ quizId, onBack }: QuizDetailProps) {
         </div>
       </div>
 
-      {/* Current question preview (admin) */}
       {currentQuestion &&
         (quiz.status === "question" || quiz.status === "results") && (
           <div className="rounded-xl border border-border bg-card p-4">
@@ -343,7 +349,6 @@ export function QuizDetail({ quizId, onBack }: QuizDetailProps) {
           </div>
         )}
 
-      {/* Live participants / leaderboard */}
       <div className="rounded-xl border border-border bg-card p-4">
         <h3 className="text-sm font-semibold text-foreground mb-3">Players</h3>
         {participants.length === 0 ? (
@@ -374,7 +379,6 @@ export function QuizDetail({ quizId, onBack }: QuizDetailProps) {
         )}
       </div>
 
-      {/* Questions list */}
       <div className="rounded-xl border border-border bg-card p-4">
         <h3 className="text-sm font-semibold text-foreground mb-3">
           Questions

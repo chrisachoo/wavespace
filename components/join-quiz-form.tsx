@@ -1,11 +1,11 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { createClient } from "@/lib/supabase/client";
 import { Zap } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 export function JoinQuizForm() {
   const [code, setCode] = useState("");
@@ -14,7 +14,7 @@ export function JoinQuizForm() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  async function handleJoin(e: React.FormEvent) {
+  async function handleJoin(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError("");
 
@@ -28,7 +28,6 @@ export function JoinQuizForm() {
     try {
       const supabase = createClient();
 
-      // Look up quiz by code
       const { data: quiz, error: quizError } = await supabase
         .from("quizzes")
         .select("id, status")
@@ -53,7 +52,6 @@ export function JoinQuizForm() {
         return;
       }
 
-      // Register participant
       const { data: participant, error: participantError } = await supabase
         .from("participants")
         .insert({
@@ -69,10 +67,7 @@ export function JoinQuizForm() {
         return;
       }
 
-      // Navigate to the play page
-      router.push(
-        `/play/${quiz.id}?participantId=${participant.id}`
-      );
+      router.push(`/play/${quiz.id}?participantId=${participant.id}`);
     } catch {
       setError("Something went wrong. Please try again.");
       setLoading(false);
@@ -92,7 +87,7 @@ export function JoinQuizForm() {
           value={code}
           onChange={(e) => setCode(e.target.value.toUpperCase())}
           maxLength={6}
-          className="h-14 text-center text-2xl font-mono tracking-[0.3em] uppercase bg-background"
+          className="h-14 text-center text-xl font-mono tracking-[0.3em] uppercase bg-background"
           autoComplete="off"
         />
       </div>
