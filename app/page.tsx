@@ -1,5 +1,6 @@
 import { JoinQuizForm } from "@/components/join-quiz-form";
 import { Radio } from "lucide-react";
+import Link from "next/link";
 
 export default function HomePage() {
   return (
@@ -24,12 +25,12 @@ export default function HomePage() {
         <p className="text-xs text-muted-foreground text-center">
           Ask your host for the quiz code to get started.
         </p>
-        <a
+        <Link
           href="/admin-wavespace"
           className="text-xs text-muted-foreground hover:text-foreground underline underline-offset-2 transition-colors"
         >
           Host a quiz?
-        </a>
+        </Link>
       </div>
     </main>
   );

@@ -14,7 +14,7 @@ import {
   Trophy,
   Users,
 } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 interface QuizDetailProps {
   quizId: string;
@@ -28,6 +28,12 @@ export function QuizDetail({ quizId, onBack }: QuizDetailProps) {
   const [answers, setAnswers] = useState<Answer[]>([]);
   const [loading, setLoading] = useState(true);
   const [codeCopied, setCodeCopied] = useState(false);
+  const openLobbyRef = useRef<HTMLButtonElement>(null);
+  const startQuizRef = useRef<HTMLButtonElement>(null);
+  const showResultsRef = useRef<HTMLButtonElement>(null);
+  const showLeaderboardRef = useRef<HTMLButtonElement>(null);
+  const nextQuestionRef = useRef<HTMLButtonElement>(null);
+  const endQuizRef = useRef<HTMLButtonElement>(null);
 
   const fetchAll = useCallback(async () => {
     const supabase = createClient();
@@ -173,6 +179,25 @@ export function QuizDetail({ quizId, onBack }: QuizDetailProps) {
     : [];
   const isLastQuestion = quiz.current_question_index >= questions.length - 1;
 
+  useEffect(() => {
+    const s = quiz.status;
+    const ref =
+      s === "draft"
+        ? openLobbyRef.current
+        : s === "lobby"
+        ? startQuizRef.current
+        : s === "question"
+        ? showResultsRef.current
+        : s === "results"
+        ? showLeaderboardRef.current
+        : s === "leaderboard" && !isLastQuestion
+        ? nextQuestionRef.current
+        : s === "leaderboard" && isLastQuestion
+        ? endQuizRef.current
+        : null;
+    ref?.focus();
+  }, [quiz?.status, isLastQuestion]);
+
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-2">
@@ -238,19 +263,24 @@ export function QuizDetail({ quizId, onBack }: QuizDetailProps) {
         </p>
         <div className="flex flex-wrap gap-3">
           {quiz.status === "draft" && (
-            <Button onClick={handleOpenLobby} size="default">
+            <Button ref={openLobbyRef} onClick={handleOpenLobby} size="default">
               <Play className="h-4 w-4" />
               Open Lobby
             </Button>
           )}
           {quiz.status === "lobby" && (
-            <Button onClick={handleStartFirstQuestion} size="default">
+            <Button
+              ref={startQuizRef}
+              onClick={handleStartFirstQuestion}
+              size="default"
+            >
               <Play className="h-4 w-4" />
               Start Quiz
             </Button>
           )}
           {quiz.status === "question" && (
             <Button
+              ref={showResultsRef}
               onClick={handleShowResults}
               size="default"
               className="min-w-[180px]"
@@ -261,6 +291,7 @@ export function QuizDetail({ quizId, onBack }: QuizDetailProps) {
           )}
           {quiz.status === "results" && (
             <Button
+              ref={showLeaderboardRef}
               onClick={handleShowLeaderboard}
               size="default"
               className="min-w-[180px]"
@@ -271,6 +302,7 @@ export function QuizDetail({ quizId, onBack }: QuizDetailProps) {
           )}
           {quiz.status === "leaderboard" && !isLastQuestion && (
             <Button
+              ref={nextQuestionRef}
               onClick={handleNextQuestion}
               size="default"
               className="min-w-[180px]"
@@ -281,6 +313,7 @@ export function QuizDetail({ quizId, onBack }: QuizDetailProps) {
           )}
           {quiz.status === "leaderboard" && isLastQuestion && (
             <Button
+              ref={endQuizRef}
               onClick={handleFinish}
               size="default"
               variant="destructive"

@@ -14,7 +14,7 @@ export function JoinQuizForm() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  async function handleJoin(e: React.FormEvent<HTMLFormElement>) {
+  async function handleJoin(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
     setError("");
 

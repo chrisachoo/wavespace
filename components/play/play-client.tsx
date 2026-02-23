@@ -23,6 +23,7 @@ export function PlayClient({ quizId, participantId }: PlayClientProps) {
   const [hasAnswered, setHasAnswered] = useState(false);
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
+  const [reconnecting, setReconnecting] = useState(false);
 
   const fetchData = useCallback(async () => {
     const supabase = createClient();
@@ -57,6 +58,26 @@ export function PlayClient({ quizId, participantId }: PlayClientProps) {
   useEffect(() => {
     fetchData();
   }, [fetchData]);
+
+  useEffect(() => {
+    if (!quiz) {
+      document.title = "Quiz | Wavespace";
+      return;
+    }
+    const status = quiz.status;
+    if (status === "lobby") document.title = "Lobby | Wavespace";
+    else if (status === "question" || status === "active")
+      document.title = `Q${quiz.current_question_index + 1} | Wavespace`;
+    else if (status === "results") document.title = "Results | Wavespace";
+    else if (status === "leaderboard")
+      document.title = "Leaderboard | Wavespace";
+    else if (status === "finished")
+      document.title = "Quiz complete | Wavespace";
+    else document.title = "Quiz | Wavespace";
+    return () => {
+      document.title = "Wavespace";
+    };
+  }, [quiz?.status, quiz?.current_question_index]);
 
   useEffect(() => {
     const supabase = createClient();
@@ -115,7 +136,11 @@ export function PlayClient({ quizId, participantId }: PlayClientProps) {
             });
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        if (status === "SUBSCRIBED") setReconnecting(false);
+        if (status === "CHANNEL_ERROR" || status === "TIMED_OUT")
+          setReconnecting(true);
+      });
 
     return () => {
       supabase.removeChannel(channel);
@@ -172,56 +197,71 @@ export function PlayClient({ quizId, participantId }: PlayClientProps) {
 
   const currentQuestion = questions[quiz.current_question_index] || null;
 
-  switch (quiz.status) {
-    case "lobby":
-      return (
-        <LobbyScreen
-          quiz={quiz}
-          participants={participants}
-          nickname={currentParticipant?.nickname || ""}
-        />
-      );
-    case "question":
-    case "active":
-      return (
-        <QuestionScreen
-          question={currentQuestion}
-          questionIndex={quiz.current_question_index}
-          totalQuestions={questions.length}
-          hasAnswered={hasAnswered}
-          selectedOption={selectedOption}
-          onAnswer={handleAnswer}
-        />
-      );
-    case "results":
-      return (
-        <ResultsScreen
-          question={currentQuestion}
-          selectedOption={selectedOption}
-          participant={currentParticipant}
-        />
-      );
-    case "leaderboard":
-      return (
-        <LeaderboardScreen
-          participants={participants}
-          currentParticipantId={participantId}
-        />
-      );
-    case "finished":
-      return (
-        <FinishedScreen
-          participants={participants}
-          currentParticipantId={participantId}
-        />
-      );
-    default:
-      return (
-        <main className="flex min-h-dvh items-center justify-center bg-background">
-          <p className="text-muted-foreground">
-            {"Waiting for the host to start..."}
-          </p>
-        </main>
-      );
-  }
+  return (
+    <>
+      {reconnecting && (
+        <div
+          className="fixed top-0 left-0 right-0 z-50 bg-amber-500/90 px-4 py-2 text-center text-sm font-medium text-amber-950"
+          role="status"
+          aria-live="polite"
+        >
+          Reconnecting…
+        </div>
+      )}
+      {(() => {
+        switch (quiz.status) {
+          case "lobby":
+            return (
+              <LobbyScreen
+                quiz={quiz}
+                participants={participants}
+                nickname={currentParticipant?.nickname || ""}
+              />
+            );
+          case "question":
+          case "active":
+            return (
+              <QuestionScreen
+                question={currentQuestion}
+                questionIndex={quiz.current_question_index}
+                totalQuestions={questions.length}
+                hasAnswered={hasAnswered}
+                selectedOption={selectedOption}
+                onAnswer={handleAnswer}
+              />
+            );
+          case "results":
+            return (
+              <ResultsScreen
+                question={currentQuestion}
+                selectedOption={selectedOption}
+                participant={currentParticipant}
+              />
+            );
+          case "leaderboard":
+            return (
+              <LeaderboardScreen
+                participants={participants}
+                currentParticipantId={participantId}
+              />
+            );
+          case "finished":
+            return (
+              <FinishedScreen
+                participants={participants}
+                currentParticipantId={participantId}
+              />
+            );
+          default:
+            return (
+              <main className="flex min-h-dvh items-center justify-center bg-background">
+                <p className="text-muted-foreground">
+                  {"Waiting for the host to start..."}
+                </p>
+              </main>
+            );
+        }
+      })()}
+    </>
+  );
 }
