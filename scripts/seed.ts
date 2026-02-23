@@ -1,4 +1,3 @@
-import { readFileSync } from "fs";
 import { resolve } from "path";
 import postgres from "postgres";
 
@@ -26,7 +25,7 @@ async function main() {
   }
 
   try {
-    const content = readFileSync(filePath, "utf-8");
+    const content = await Bun.file(filePath).text();
     if (!content.trim()) {
       console.error(`File is empty: ${filePath}`);
       process.exit(1);

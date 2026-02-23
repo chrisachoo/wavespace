@@ -53,3 +53,28 @@ Follow these rules when you write code:
 - **Strict Typing:** No `any`. Use proper event types (e.g., `JSX.EventHandlerUnion<HTMLButtonElement, MouseEvent>`).
 - **Routing:** Use TanStack Router for type-safe navigation and loaders.
 - **File Naming:** use PascalCase for components (`MyComponent.tsx`) and camelCase for utilities (`useAuth.ts`).
+
+### Runtime & package manager
+
+- **Bun:** This project uses Bun as the runtime and package manager. Prefer Bun APIs and run scripts with `bun run` / `bun` (e.g. `bun run scripts/seed.ts`, `bun test`).
+- Use `Bun.file()` for file reads; use `Bun.env` for env vars when appropriate; use Bun’s native test runner, bundler, and script execution instead of adding Node-only tooling where possible.
+
+### Built-In API First Principle
+
+Before installing or suggesting a dependency:
+
+1. Check if Bun provides a native API.
+2. Check if the Web Standard provides a native API.
+3. Only install a package if:
+   - The functionality is complex
+   - It cannot be safely implemented with built-ins
+   - It is security-sensitive and battle-tested libraries are preferred
+
+Examples:
+- Use `Bun.file()` instead of fs wrappers (e.g. `await Bun.file(path).text()` for string content).
+- Use native `fetch()` instead of axios.
+- Use Web Crypto instead of crypto libraries.
+- Use `URL`, `URLSearchParams`, `FormData` before helper packages.
+- Use Bun’s built-in SQLite before adding ORMs unless required.
+
+Do not introduce small utility packages for trivial logic.
