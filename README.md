@@ -17,7 +17,7 @@ The admin site is at **`/admin-wavespace`**. Access is gated by a secret query p
 
 - **URL pattern:**  
   `http://localhost:3000/admin-wavespace?secret=YOUR_SECRET`
-- Set `ADMIN_SECRET` in `.env` to your chosen secret. Use that value in the URL (e.g. `?secret=your-secret-here`). Do not commit the real secret.
+- Set `NEXT_ADMIN_SECRET` in `.env` to your chosen secret. Use that value in the URL (e.g. `?secret=your-secret-here`). Do not commit the real secret.
 
 ## Environment variables
 
@@ -27,12 +27,12 @@ Copy `.env.example` to `.env` and fill in:
 |----------|---------|
 | `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anon key |
-| `ADMIN_SECRET` | Secret for `/admin-wavespace?secret=...` |
-| `POSTGRES_URL` | Postgres connection string (optional; for seed script) |
+| `NEXT_ADMIN_SECRET` | Secret for `/admin-wavespace?secret=...` |
+| `POSTGRES_URL_NON_POOLING` | Postgres connection string (optional; for seed script) |
 
 ## Seed the database
 
-With `POSTGRES_URL` set in `.env`:
+With `POSTGRES_URL_NON_POOLING` set in `.env`:
 
 ```bash
 bun run db:seed
