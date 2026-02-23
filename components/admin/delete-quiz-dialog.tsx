@@ -27,7 +27,7 @@ export function DeleteQuizDialog({
   onOpenChange,
   onConfirm,
   isDeleting = false,
-}: DeleteQuizDialogProps) {
+}: Readonly<DeleteQuizDialogProps>) {
   const [confirmText, setConfirmText] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
   const matches = confirmText.trim() === quizTitle;

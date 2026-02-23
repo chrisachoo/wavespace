@@ -14,7 +14,10 @@ interface PlayClientProps {
   participantId: string;
 }
 
-export function PlayClient({ quizId, participantId }: PlayClientProps) {
+export function PlayClient({
+  quizId,
+  participantId,
+}: Readonly<PlayClientProps>) {
   const [quiz, setQuiz] = useState<Quiz | null>(null);
   const [questions, setQuestions] = useState<Question[]>([]);
   const [participants, setParticipants] = useState<Participant[]>([]);

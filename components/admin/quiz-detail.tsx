@@ -23,7 +23,7 @@ interface QuizDetailProps {
   onBack: () => void;
 }
 
-export function QuizDetail({ quizId, onBack }: QuizDetailProps) {
+export function QuizDetail({ quizId, onBack }: Readonly<QuizDetailProps>) {
   const [quiz, setQuiz] = useState<Quiz | null>(null);
   const [questions, setQuestions] = useState<Question[]>([]);
   const [participants, setParticipants] = useState<Participant[]>([]);
@@ -32,6 +32,7 @@ export function QuizDetail({ quizId, onBack }: QuizDetailProps) {
   const [codeCopied, setCodeCopied] = useState(false);
   const [restarting, setRestarting] = useState(false);
   const [restartMessage, setRestartMessage] = useState(false);
+
   const openLobbyRef = useRef<HTMLButtonElement>(null);
   const startQuizRef = useRef<HTMLButtonElement>(null);
   const showResultsRef = useRef<HTMLButtonElement>(null);
@@ -129,6 +130,7 @@ export function QuizDetail({ quizId, onBack }: QuizDetailProps) {
     const isLast =
       questions.length > 0 &&
       quiz.current_question_index >= questions.length - 1;
+
     const ref =
       s === "draft"
         ? openLobbyRef.current
@@ -306,7 +308,7 @@ export function QuizDetail({ quizId, onBack }: QuizDetailProps) {
               ref={showResultsRef}
               onClick={handleShowResults}
               size="default"
-              className="min-w-[180px]"
+              className="min-w-45"
             >
               <BarChart3 className="h-4 w-4" />
               Show Results
@@ -317,7 +319,7 @@ export function QuizDetail({ quizId, onBack }: QuizDetailProps) {
               ref={showLeaderboardRef}
               onClick={handleShowLeaderboard}
               size="default"
-              className="min-w-[180px]"
+              className="min-w-45"
             >
               <Trophy className="h-4 w-4" />
               Show Leaderboard
@@ -328,7 +330,7 @@ export function QuizDetail({ quizId, onBack }: QuizDetailProps) {
               ref={nextQuestionRef}
               onClick={handleNextQuestion}
               size="default"
-              className="min-w-[180px]"
+              className="min-w-45"
             >
               <SkipForward className="h-4 w-4" />
               Next Question
@@ -340,7 +342,7 @@ export function QuizDetail({ quizId, onBack }: QuizDetailProps) {
               onClick={handleFinish}
               size="default"
               variant="destructive"
-              className="min-w-[180px]"
+              className="min-w-45"
             >
               <Square className="h-4 w-4" />
               End Quiz
@@ -387,7 +389,7 @@ export function QuizDetail({ quizId, onBack }: QuizDetailProps) {
               </span>
             </div>
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-              {(currentQuestion.options as string[]).map((opt, i) => {
+              {currentQuestion.options.map((opt, i) => {
                 const answerCount = currentAnswers.filter(
                   (a) => a.selected_option === i
                 ).length;

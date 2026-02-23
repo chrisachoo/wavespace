@@ -6,10 +6,17 @@ interface LeaderboardScreenProps {
   currentParticipantId: string;
 }
 
+function setStyling(value: number) {
+  if (value === 0) return "bg-teal text-white";
+  if (value === 1) return "bg-muted text-muted-foreground";
+  if (value === 2) return "bg-amber text-white";
+  else return "bg-secondary text-secondary-foreground";
+}
+
 export function LeaderboardScreen({
   participants,
   currentParticipantId,
-}: LeaderboardScreenProps) {
+}: Readonly<LeaderboardScreenProps>) {
   const sorted = [...participants].sort((a, b) => b.score - a.score);
 
   return (
@@ -34,15 +41,9 @@ export function LeaderboardScreen({
               >
                 <div className="flex items-center gap-3">
                   <span
-                    className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold ${
-                      index === 0
-                        ? "bg-[oklch(0.7_0.17_55)] text-white"
-                        : index === 1
-                        ? "bg-muted text-muted-foreground"
-                        : index === 2
-                        ? "bg-[oklch(0.7_0.12_55)] text-white"
-                        : "bg-secondary text-secondary-foreground"
-                    }`}
+                    className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold ${setStyling(
+                      index
+                    )}`}
                   >
                     {index + 1}
                   </span>

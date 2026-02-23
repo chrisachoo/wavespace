@@ -34,7 +34,7 @@ export function QuestionScreen({
   hasAnswered,
   selectedOption,
   onAnswer,
-}: QuestionScreenProps) {
+}: Readonly<QuestionScreenProps>) {
   const [timeLeft, setTimeLeft] = useState(question?.time_limit || 20);
 
   useEffect(() => {
@@ -57,7 +57,7 @@ export function QuestionScreen({
     );
   }
 
-  const options = question.options as string[];
+  const options = question.options;
 
   return (
     <main className="flex min-h-dvh flex-col bg-background">

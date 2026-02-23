@@ -7,7 +7,11 @@ interface LobbyScreenProps {
   nickname: string;
 }
 
-export function LobbyScreen({ quiz, participants, nickname }: LobbyScreenProps) {
+export function LobbyScreen({
+  quiz,
+  participants,
+  nickname,
+}: Readonly<LobbyScreenProps>) {
   return (
     <main className="flex min-h-dvh flex-col items-center justify-center bg-background px-4 py-8">
       <div className="flex w-full max-w-lg flex-col items-center gap-8">
@@ -28,7 +32,8 @@ export function LobbyScreen({ quiz, participants, nickname }: LobbyScreenProps) 
             <div className="flex items-center gap-2 text-muted-foreground">
               <Users className="h-4 w-4" />
               <span className="text-sm font-medium">
-                {participants.length} {participants.length === 1 ? "player" : "players"}
+                {participants.length}{" "}
+                {participants.length === 1 ? "player" : "players"}
               </span>
             </div>
             <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">

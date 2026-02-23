@@ -12,7 +12,7 @@ interface FinishedScreenProps {
 export function FinishedScreen({
   participants,
   currentParticipantId,
-}: FinishedScreenProps) {
+}: Readonly<FinishedScreenProps>) {
   const sorted = [...participants].sort((a, b) => b.score - a.score);
   const myRank = sorted.findIndex((p) => p.id === currentParticipantId) + 1;
   const me = sorted.find((p) => p.id === currentParticipantId);
