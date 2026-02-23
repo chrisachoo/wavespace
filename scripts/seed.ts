@@ -22,10 +22,10 @@ const filePath = fileArg
   ? resolve(process.cwd(), fileArg)
   : resolve(process.cwd(), defaultSeed);
 
-const databaseUrl = process.env.DATABASE_URL!;
+const databaseUrl = process.env.POSTGRES_URL_NON_POOLING!;
 if (!databaseUrl) {
   console.error(
-    "Missing DATABASE_URL. Add it to .env (Supabase: Project Settings → Database → Connection string)."
+    "Missing POSTGRES_URL_NON_POOLING. Add it to .env (Supabase: Project Settings → Database → Connection string)."
   );
   process.exit(1);
 }

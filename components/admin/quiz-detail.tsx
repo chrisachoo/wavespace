@@ -208,42 +208,77 @@ export function QuizDetail({ quizId, onBack }: QuizDetailProps) {
         </div>
       </div>
 
-      {/* Control panel */}
-      <div className="rounded-xl border border-border bg-card p-4">
-        <h3 className="text-sm font-semibold text-foreground mb-3">Controls</h3>
-        <div className="flex flex-wrap gap-2">
+      {/* Host controls – you advance the quiz with these buttons */}
+      <div className="rounded-xl border-2 border-primary/30 bg-primary/5 p-5">
+        <h3 className="text-base font-semibold text-foreground mb-1">
+          Host controls
+        </h3>
+        <p className="text-sm text-muted-foreground mb-4">
+          {quiz.status === "draft" &&
+            "Open the lobby so players can join with the quiz code."}
+          {quiz.status === "lobby" && "Start the quiz when everyone is in."}
+          {quiz.status === "question" &&
+            "When most have answered (or time is up), click below to show results and then move to the next question."}
+          {quiz.status === "results" &&
+            "Reveal the leaderboard, then go to next question or end the quiz."}
+          {quiz.status === "leaderboard" &&
+            !isLastQuestion &&
+            "Go to the next question or end the quiz after the last one."}
+          {quiz.status === "leaderboard" &&
+            isLastQuestion &&
+            "This was the last question. End the quiz to show final results."}
+          {quiz.status === "finished" && "This quiz is over."}
+        </p>
+        <div className="flex flex-wrap gap-3">
           {quiz.status === "draft" && (
-            <Button onClick={handleOpenLobby} size="sm">
+            <Button onClick={handleOpenLobby} size="default">
               <Play className="h-4 w-4" />
               Open Lobby
             </Button>
           )}
           {quiz.status === "lobby" && (
-            <Button onClick={handleStartFirstQuestion} size="sm">
+            <Button onClick={handleStartFirstQuestion} size="default">
               <Play className="h-4 w-4" />
               Start Quiz
             </Button>
           )}
           {quiz.status === "question" && (
-            <Button onClick={handleShowResults} size="sm">
+            <Button
+              onClick={handleShowResults}
+              size="default"
+              className="min-w-[180px]"
+            >
               <BarChart3 className="h-4 w-4" />
               Show Results
             </Button>
           )}
           {quiz.status === "results" && (
-            <Button onClick={handleShowLeaderboard} size="sm">
+            <Button
+              onClick={handleShowLeaderboard}
+              size="default"
+              className="min-w-[180px]"
+            >
               <Trophy className="h-4 w-4" />
               Show Leaderboard
             </Button>
           )}
           {quiz.status === "leaderboard" && !isLastQuestion && (
-            <Button onClick={handleNextQuestion} size="sm">
+            <Button
+              onClick={handleNextQuestion}
+              size="default"
+              className="min-w-[180px]"
+            >
               <SkipForward className="h-4 w-4" />
               Next Question
             </Button>
           )}
           {quiz.status === "leaderboard" && isLastQuestion && (
-            <Button onClick={handleFinish} size="sm" variant="destructive">
+            <Button
+              onClick={handleFinish}
+              size="default"
+              variant="destructive"
+              className="min-w-[180px]"
+            >
               <Square className="h-4 w-4" />
               End Quiz
             </Button>
