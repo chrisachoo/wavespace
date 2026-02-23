@@ -123,6 +123,29 @@ export function QuizDetail({ quizId, onBack }: QuizDetailProps) {
     };
   }, [quizId]);
 
+  useEffect(() => {
+    if (loading || !quiz) return;
+    const s = quiz.status;
+    const isLast =
+      questions.length > 0 &&
+      quiz.current_question_index >= questions.length - 1;
+    const ref =
+      s === "draft"
+        ? openLobbyRef.current
+        : s === "lobby"
+        ? startQuizRef.current
+        : s === "question"
+        ? showResultsRef.current
+        : s === "results"
+        ? showLeaderboardRef.current
+        : s === "leaderboard" && !isLast
+        ? nextQuestionRef.current
+        : s === "leaderboard" && isLast
+        ? endQuizRef.current
+        : null;
+    ref?.focus();
+  }, [loading, quiz?.status, quiz?.current_question_index, questions.length]);
+
   async function updateQuizStatus(
     status: Quiz["status"],
     questionIndex?: number
@@ -199,25 +222,6 @@ export function QuizDetail({ quizId, onBack }: QuizDetailProps) {
     ? answers.filter((a) => a.question_id === currentQuestion.id)
     : [];
   const isLastQuestion = quiz.current_question_index >= questions.length - 1;
-
-  useEffect(() => {
-    const s = quiz.status;
-    const ref =
-      s === "draft"
-        ? openLobbyRef.current
-        : s === "lobby"
-        ? startQuizRef.current
-        : s === "question"
-        ? showResultsRef.current
-        : s === "results"
-        ? showLeaderboardRef.current
-        : s === "leaderboard" && !isLastQuestion
-        ? nextQuestionRef.current
-        : s === "leaderboard" && isLastQuestion
-        ? endQuizRef.current
-        : null;
-    ref?.focus();
-  }, [quiz?.status, isLastQuestion]);
 
   return (
     <div className="flex flex-col gap-6">
