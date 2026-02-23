@@ -61,14 +61,16 @@ create policy "Allow public insert questions" on public.questions for insert wit
 create policy "Allow public update questions" on public.questions for update using (true);
 create policy "Allow public delete questions" on public.questions for delete using (true);
 
--- Participants: allow public read, insert, update
+-- Participants: allow public read, insert, update, delete (delete for quiz restart)
 create policy "Allow public read participants" on public.participants for select using (true);
 create policy "Allow public insert participants" on public.participants for insert with check (true);
 create policy "Allow public update participants" on public.participants for update using (true);
+create policy "Allow public delete participants" on public.participants for delete using (true);
 
--- Answers: allow public read, insert
+-- Answers: allow public read, insert, delete (delete for quiz restart)
 create policy "Allow public read answers" on public.answers for select using (true);
 create policy "Allow public insert answers" on public.answers for insert with check (true);
+create policy "Allow public delete answers" on public.answers for delete using (true);
 
 -- Enable realtime on quizzes table (used for live sync)
 alter publication supabase_realtime add table public.quizzes;

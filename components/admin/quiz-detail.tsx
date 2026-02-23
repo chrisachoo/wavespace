@@ -2,6 +2,7 @@
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { getQuizStatusBadgeClass } from "@/lib/quiz-status";
 import { createClient } from "@/lib/supabase/client";
 import type { Answer, Participant, Question, Quiz } from "@/lib/types";
 import {
@@ -9,6 +10,7 @@ import {
   CheckCircle2,
   Copy,
   Play,
+  RotateCcw,
   SkipForward,
   Square,
   Trophy,
@@ -28,6 +30,8 @@ export function QuizDetail({ quizId, onBack }: QuizDetailProps) {
   const [answers, setAnswers] = useState<Answer[]>([]);
   const [loading, setLoading] = useState(true);
   const [codeCopied, setCodeCopied] = useState(false);
+  const [restarting, setRestarting] = useState(false);
+  const [restartMessage, setRestartMessage] = useState(false);
   const openLobbyRef = useRef<HTMLButtonElement>(null);
   const startQuizRef = useRef<HTMLButtonElement>(null);
   const showResultsRef = useRef<HTMLButtonElement>(null);
@@ -165,6 +169,23 @@ export function QuizDetail({ quizId, onBack }: QuizDetailProps) {
     await updateQuizStatus("finished");
   }
 
+  async function handleRestart() {
+    if (!quiz) return;
+    setRestarting(true);
+    try {
+      const supabase = createClient();
+      await supabase.from("answers").delete().eq("quiz_id", quizId);
+      await supabase.from("participants").delete().eq("quiz_id", quizId);
+      await updateQuizStatus("draft", 0);
+      setAnswers([]);
+      setParticipants([]);
+      setRestartMessage(true);
+      setTimeout(() => setRestartMessage(false), 4000);
+    } finally {
+      setRestarting(false);
+    }
+  }
+
   if (loading || !quiz) {
     return (
       <div className="flex items-center justify-center py-20">
@@ -205,11 +226,9 @@ export function QuizDetail({ quizId, onBack }: QuizDetailProps) {
           <h2 className="text-xl font-bold text-foreground">{quiz.title}</h2>
           <div className="flex items-center gap-2">
             <Badge
-              className={`border-0 ${
-                quiz.status === "lobby" || quiz.status === "question"
-                  ? "bg-[oklch(0.65_0.19_145)]/15 text-[oklch(0.55_0.21_145)]"
-                  : "bg-muted text-muted-foreground"
-              }`}
+              className={`border-0 capitalize ${getQuizStatusBadgeClass(
+                quiz.status
+              )}`}
             >
               {quiz.status}
             </Badge>
@@ -324,12 +343,32 @@ export function QuizDetail({ quizId, onBack }: QuizDetailProps) {
             </Button>
           )}
           {quiz.status === "finished" && (
-            <p className="text-sm text-muted-foreground py-1">
-              Quiz is finished.
-            </p>
+            <div className="flex flex-wrap items-center gap-3">
+              <p className="text-sm text-muted-foreground py-1">
+                Quiz is finished.
+              </p>
+              <Button
+                variant="outline"
+                size="default"
+                onClick={handleRestart}
+                disabled={restarting}
+              >
+                <RotateCcw className="h-4 w-4" />
+                {restarting ? "Restarting…" : "Restart quiz"}
+              </Button>
+            </div>
           )}
         </div>
       </div>
+
+      {restartMessage && (
+        <div
+          className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-4 py-2 text-sm text-emerald-700 dark:text-emerald-300"
+          role="status"
+        >
+          Quiz restarted. You can open the lobby and run it again.
+        </div>
+      )}
 
       {currentQuestion &&
         (quiz.status === "question" || quiz.status === "results") && (
