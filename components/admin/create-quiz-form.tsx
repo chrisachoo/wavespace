@@ -1,12 +1,12 @@
 "use client";
 
-import { useState } from "react";
-import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Trash2, Plus, GripVertical } from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
+import { GripVertical, Plus, Trash2 } from "lucide-react";
+import { useState } from "react";
 
 interface QuestionInput {
   question_text: string;
@@ -29,10 +29,18 @@ function generateCode(): string {
   return code;
 }
 
-export function CreateQuizForm({ onCreated, onCancel }: CreateQuizFormProps) {
+export function CreateQuizForm({
+  onCreated,
+  onCancel,
+}: Readonly<CreateQuizFormProps>) {
   const [title, setTitle] = useState("");
   const [questions, setQuestions] = useState<QuestionInput[]>([
-    { question_text: "", options: ["", "", "", ""], correct_option: 0, time_limit: 20 },
+    {
+      question_text: "",
+      options: ["", "", "", ""],
+      correct_option: 0,
+      time_limit: 20,
+    },
   ]);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
@@ -40,7 +48,12 @@ export function CreateQuizForm({ onCreated, onCancel }: CreateQuizFormProps) {
   function addQuestion() {
     setQuestions((prev) => [
       ...prev,
-      { question_text: "", options: ["", "", "", ""], correct_option: 0, time_limit: 20 },
+      {
+        question_text: "",
+        options: ["", "", "", ""],
+        correct_option: 0,
+        time_limit: 20,
+      },
     ]);
   }
 
@@ -48,7 +61,11 @@ export function CreateQuizForm({ onCreated, onCancel }: CreateQuizFormProps) {
     setQuestions((prev) => prev.filter((_, i) => i !== index));
   }
 
-  function updateQuestion(index: number, field: keyof QuestionInput, value: unknown) {
+  function updateQuestion(
+    index: number,
+    field: keyof QuestionInput,
+    value: unknown
+  ) {
     setQuestions((prev) => {
       const updated = [...prev];
       updated[index] = { ...updated[index], [field]: value };
@@ -95,7 +112,12 @@ export function CreateQuizForm({ onCreated, onCancel }: CreateQuizFormProps) {
 
       const { data: quiz, error: quizError } = await supabase
         .from("quizzes")
-        .insert({ title: title.trim(), code })
+        .insert({
+          title: title.trim(),
+          code,
+          status: "draft",
+          current_question_index: 0,
+        })
         .select("id")
         .single();
 
@@ -154,7 +176,12 @@ export function CreateQuizForm({ onCreated, onCancel }: CreateQuizFormProps) {
       <div className="flex flex-col gap-4">
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-semibold text-foreground">Questions</h3>
-          <Button type="button" variant="outline" size="sm" onClick={addQuestion}>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={addQuestion}
+          >
             <Plus className="h-4 w-4" />
             Add Question
           </Button>

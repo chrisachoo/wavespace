@@ -23,10 +23,16 @@ export default function HomePage() {
           <JoinQuizForm />
         </div>
 
-        {/* Footer hint */}
+        {/* Footer */}
         <p className="text-xs text-muted-foreground text-center">
-          {"Ask your host for the quiz code to get started."}
+          Ask your host for the quiz code to get started.
         </p>
+        <a
+          href="/admin-wavespace"
+          className="text-xs text-muted-foreground hover:text-foreground underline underline-offset-2 transition-colors"
+        >
+          Host a quiz?
+        </a>
       </div>
     </main>
   );

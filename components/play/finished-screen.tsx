@@ -1,7 +1,8 @@
+import { buttonVariants } from "@/components/ui/button";
 import type { Participant } from "@/lib/types";
-import { Trophy, Home } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Home, Trophy } from "lucide-react";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
 
 interface FinishedScreenProps {
   participants: Participant[];
@@ -85,12 +86,13 @@ export function FinishedScreen({
           })}
         </div>
 
-        <Button asChild variant="outline" className="mt-4">
-          <Link href="/">
-            <Home className="h-4 w-4" />
-            Back to Home
-          </Link>
-        </Button>
+        <Link
+          href="/"
+          className={cn(buttonVariants({ variant: "outline" }), "mt-4")}
+        >
+          <Home className="h-4 w-4" />
+          Back to Home
+        </Link>
       </div>
     </main>
   );

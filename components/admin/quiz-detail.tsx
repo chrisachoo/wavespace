@@ -1,20 +1,20 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
-import { createClient } from "@/lib/supabase/client";
-import type { Quiz, Question, Participant, Answer } from "@/lib/types";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { createClient } from "@/lib/supabase/client";
+import type { Answer, Participant, Question, Quiz } from "@/lib/types";
 import {
-  Play,
-  SkipForward,
-  Trophy,
-  Users,
-  Copy,
-  Square,
   BarChart3,
   CheckCircle2,
+  Copy,
+  Play,
+  SkipForward,
+  Square,
+  Trophy,
+  Users,
 } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
 
 interface QuizDetailProps {
   quizId: string;
@@ -43,10 +43,7 @@ export function QuizDetail({ quizId, onBack }: QuizDetailProps) {
           .select("*")
           .eq("quiz_id", quizId)
           .order("score", { ascending: false }),
-        supabase
-          .from("answers")
-          .select("*")
-          .eq("quiz_id", quizId),
+        supabase.from("answers").select("*").eq("quiz_id", quizId),
       ]);
 
     if (quizRes.data) setQuiz(quizRes.data);
@@ -60,12 +57,24 @@ export function QuizDetail({ quizId, onBack }: QuizDetailProps) {
     fetchAll();
   }, [fetchAll]);
 
-  // Realtime: listen for participant joins + answer submissions
+  // Realtime: listen for quiz status changes, participant joins, and answer submissions
   useEffect(() => {
     const supabase = createClient();
 
     const channel = supabase
       .channel(`admin-quiz-${quizId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "quizzes",
+          filter: `id=eq.${quizId}`,
+        },
+        (payload) => {
+          setQuiz(payload.new as Quiz);
+        }
+      )
       .on(
         "postgres_changes",
         {
@@ -162,8 +171,7 @@ export function QuizDetail({ quizId, onBack }: QuizDetailProps) {
   const currentAnswers = currentQuestion
     ? answers.filter((a) => a.question_id === currentQuestion.id)
     : [];
-  const isLastQuestion =
-    quiz.current_question_index >= questions.length - 1;
+  const isLastQuestion = quiz.current_question_index >= questions.length - 1;
 
   return (
     <div className="flex flex-col gap-6">
@@ -196,17 +204,13 @@ export function QuizDetail({ quizId, onBack }: QuizDetailProps) {
             <Users className="h-4 w-4" />
             {participants.length} players
           </span>
-          <span>
-            {questions.length} questions
-          </span>
+          <span>{questions.length} questions</span>
         </div>
       </div>
 
       {/* Control panel */}
       <div className="rounded-xl border border-border bg-card p-4">
-        <h3 className="text-sm font-semibold text-foreground mb-3">
-          Controls
-        </h3>
+        <h3 className="text-sm font-semibold text-foreground mb-3">Controls</h3>
         <div className="flex flex-wrap gap-2">
           {quiz.status === "draft" && (
             <Button onClick={handleOpenLobby} size="sm">
@@ -258,7 +262,8 @@ export function QuizDetail({ quizId, onBack }: QuizDetailProps) {
           <div className="rounded-xl border border-border bg-card p-4">
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-sm font-semibold text-foreground">
-                Q{quiz.current_question_index + 1}: {currentQuestion.question_text}
+                Q{quiz.current_question_index + 1}:{" "}
+                {currentQuestion.question_text}
               </h3>
               <span className="text-xs text-muted-foreground">
                 {currentAnswers.length} / {participants.length} answered
@@ -305,9 +310,7 @@ export function QuizDetail({ quizId, onBack }: QuizDetailProps) {
 
       {/* Live participants / leaderboard */}
       <div className="rounded-xl border border-border bg-card p-4">
-        <h3 className="text-sm font-semibold text-foreground mb-3">
-          Players
-        </h3>
+        <h3 className="text-sm font-semibold text-foreground mb-3">Players</h3>
         {participants.length === 0 ? (
           <p className="text-sm text-muted-foreground">
             No players have joined yet.
@@ -352,7 +355,9 @@ export function QuizDetail({ quizId, onBack }: QuizDetailProps) {
               <div
                 key={q.id}
                 className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm ${
-                  isCurrent && quiz.status !== "draft" && quiz.status !== "lobby"
+                  isCurrent &&
+                  quiz.status !== "draft" &&
+                  quiz.status !== "lobby"
                     ? "bg-primary/10 border border-primary/20"
                     : isPast
                     ? "bg-muted/50 text-muted-foreground"
@@ -361,7 +366,9 @@ export function QuizDetail({ quizId, onBack }: QuizDetailProps) {
               >
                 <span
                   className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
-                    isCurrent && quiz.status !== "draft" && quiz.status !== "lobby"
+                    isCurrent &&
+                    quiz.status !== "draft" &&
+                    quiz.status !== "lobby"
                       ? "bg-primary text-primary-foreground"
                       : isPast
                       ? "bg-muted text-muted-foreground"

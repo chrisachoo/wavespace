@@ -1,4 +1,5 @@
 -- Seed: "Know Your Stack" quiz about the Wavespace tech stack
+-- Idempotent: safe to run multiple times (quiz ON CONFLICT DO NOTHING; questions replaced).
 
 -- Insert the quiz with a memorable code
 INSERT INTO public.quizzes (id, title, code, status, current_question_index)
@@ -10,6 +11,10 @@ VALUES (
   0
 )
 ON CONFLICT (id) DO NOTHING;
+
+-- Replace questions for this quiz so re-runs don't duplicate
+DELETE FROM public.questions
+WHERE quiz_id = 'a1b2c3d4-e5f6-7890-abcd-ef1234567890';
 
 -- Insert 5 questions about the stack
 INSERT INTO public.questions (quiz_id, question_text, options, correct_option, time_limit, sort_order)
