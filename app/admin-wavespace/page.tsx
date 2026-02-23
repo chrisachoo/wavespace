@@ -1,0 +1,17 @@
+import { AdminDashboard } from "@/components/admin/admin-dashboard";
+import { redirect } from "next/navigation";
+
+export default async function AdminPage({
+  searchParams,
+}: Readonly<{
+  searchParams: Promise<{ secret?: string }>;
+}>) {
+  const { secret } = await searchParams;
+  const adminSecret = process.env.ADMIN_SECRET;
+
+  if (!adminSecret || secret !== adminSecret) {
+    redirect("/");
+  }
+
+  return <AdminDashboard />;
+}
