@@ -38,7 +38,7 @@ VALUES
   (
     'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
     'Which CSS framework styles the Wavespace UI?',
-    '["Bootstrap", "Chakra UI", "Tailwind CSS", "Material UI"]'::jsonb,
+    '["Bootstrap", "Mantine UI", "Tailwind CSS", "Material UI"]'::jsonb,
     2,
     40,
     2
@@ -46,7 +46,7 @@ VALUES
   (
     'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
     'What font family does Wavespace use for its typography?',
-    '["Inter", "Geist", "Roboto", "Poppins"]'::jsonb,
+    '["Inter", "Geist", "JetBrains Mono", "Poppins"]'::jsonb,
     1,
     40,
     3
@@ -58,4 +58,12 @@ VALUES
     2,
     40,
     4
+  ),
+  (
+    'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
+    'What is the primary language of the Wavespace codebase?',
+    '["TypeScript", "JavaScript", "Python", "Ruby"]'::jsonb,
+    0,
+    40,
+    5
   );
