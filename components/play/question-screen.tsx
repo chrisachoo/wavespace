@@ -35,10 +35,10 @@ export function QuestionScreen({
   selectedOption,
   onAnswer,
 }: Readonly<QuestionScreenProps>) {
-  const [timeLeft, setTimeLeft] = useState(question?.time_limit || 20);
+  const [timeLeft, setTimeLeft] = useState(question?.time_limit ?? 40);
 
   useEffect(() => {
-    setTimeLeft(question?.time_limit || 20);
+    setTimeLeft(question?.time_limit ?? 40);
   }, [question]);
 
   useEffect(() => {

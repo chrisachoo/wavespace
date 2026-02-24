@@ -24,7 +24,7 @@ VALUES
     'Which framework powers Wavespace?',
     '["Next.js", "Remix", "Nuxt.js", "SvelteKit"]'::jsonb,
     0,
-    20,
+    40,
     0
   ),
   (
@@ -32,7 +32,7 @@ VALUES
     'What database and realtime service does Wavespace use?',
     '["Firebase", "Supabase", "PlanetScale", "MongoDB Atlas"]'::jsonb,
     1,
-    20,
+    40,
     1
   ),
   (
@@ -40,7 +40,7 @@ VALUES
     'Which CSS framework styles the Wavespace UI?',
     '["Bootstrap", "Chakra UI", "Tailwind CSS", "Material UI"]'::jsonb,
     2,
-    15,
+    40,
     2
   ),
   (
@@ -48,7 +48,7 @@ VALUES
     'What font family does Wavespace use for its typography?',
     '["Inter", "Geist", "Roboto", "Poppins"]'::jsonb,
     1,
-    15,
+    40,
     3
   ),
   (
@@ -56,6 +56,6 @@ VALUES
     'Which Supabase feature enables live quiz synchronisation between admin and players?',
     '["Supabase Storage", "Supabase Edge Functions", "Supabase Realtime", "Supabase Vault"]'::jsonb,
     2,
-    20,
+    40,
     4
   );
