@@ -13,6 +13,7 @@ import {
   RotateCcw,
   SkipForward,
   Square,
+  Timer,
   Trophy,
   Users,
 } from "lucide-react";
@@ -21,6 +22,25 @@ import { useCallback, useEffect, useRef, useState } from "react";
 interface QuizDetailProps {
   quizId: string;
   onBack: () => void;
+}
+
+function getHostControlMessage(
+  status: Quiz["status"],
+  isLastQuestion: boolean
+): string {
+  if (status === "draft")
+    return "Open the lobby so players can join with the quiz code.";
+  if (status === "lobby") return "Start the quiz when everyone is in.";
+  if (status === "question")
+    return "When most have answered (or time is up), click below to show results and then move to the next question.";
+  if (status === "results")
+    return "Reveal the leaderboard, then go to next question or end the quiz.";
+  if (status === "leaderboard" && !isLastQuestion)
+    return "Go to the next question or end the quiz after the last one.";
+  if (status === "leaderboard" && isLastQuestion)
+    return "This was the last question. End the quiz to show final results.";
+  if (status === "finished") return "This quiz is over.";
+  return "";
 }
 
 export function QuizDetail({ quizId, onBack }: Readonly<QuizDetailProps>) {
@@ -32,6 +52,7 @@ export function QuizDetail({ quizId, onBack }: Readonly<QuizDetailProps>) {
   const [codeCopied, setCodeCopied] = useState(false);
   const [restarting, setRestarting] = useState(false);
   const [restartMessage, setRestartMessage] = useState(false);
+  const [questionTimeLeft, setQuestionTimeLeft] = useState<number | null>(null);
 
   const openLobbyRef = useRef<HTMLButtonElement>(null);
   const startQuizRef = useRef<HTMLButtonElement>(null);
@@ -68,6 +89,27 @@ export function QuizDetail({ quizId, onBack }: Readonly<QuizDetailProps>) {
   useEffect(() => {
     fetchAll();
   }, [fetchAll]);
+
+  // Countdown for current question so host knows when to reveal answer / move on
+  useEffect(() => {
+    if (quiz?.status !== "question" || questionTimeLeft === null) return;
+    if (questionTimeLeft <= 0) return;
+    const t = setInterval(() => {
+      setQuestionTimeLeft((prev) =>
+        prev !== null ? Math.max(0, prev - 1) : 0
+      );
+    }, 1000);
+    return () => clearInterval(t);
+  }, [quiz?.status, questionTimeLeft]);
+
+  useEffect(() => {
+    if (quiz?.status === "question") {
+      const q = questions[quiz.current_question_index];
+      setQuestionTimeLeft(q?.time_limit ?? null);
+    } else {
+      setQuestionTimeLeft(null);
+    }
+  }, [quiz?.status, quiz?.current_question_index, questions]);
 
   useEffect(() => {
     const supabase = createClient();
@@ -130,23 +172,15 @@ export function QuizDetail({ quizId, onBack }: Readonly<QuizDetailProps>) {
     const isLast =
       questions.length > 0 &&
       quiz.current_question_index >= questions.length - 1;
-
-    const ref =
-      s === "draft"
-        ? openLobbyRef.current
-        : s === "lobby"
-        ? startQuizRef.current
-        : s === "question"
-        ? showResultsRef.current
-        : s === "results"
-        ? showLeaderboardRef.current
-        : s === "leaderboard" && !isLast
-        ? nextQuestionRef.current
-        : s === "leaderboard" && isLast
-        ? endQuizRef.current
-        : null;
+    let ref: HTMLButtonElement | null = null;
+    if (s === "draft") ref = openLobbyRef.current;
+    else if (s === "lobby") ref = startQuizRef.current;
+    else if (s === "question") ref = showResultsRef.current;
+    else if (s === "results") ref = showLeaderboardRef.current;
+    else if (s === "leaderboard" && !isLast) ref = nextQuestionRef.current;
+    else if (s === "leaderboard" && isLast) ref = endQuizRef.current;
     ref?.focus();
-  }, [loading, quiz?.status, quiz?.current_question_index, questions.length]);
+  }, [loading, quiz, questions.length]);
 
   async function updateQuizStatus(
     status: Quiz["status"],
@@ -271,20 +305,7 @@ export function QuizDetail({ quizId, onBack }: Readonly<QuizDetailProps>) {
           Host controls
         </h3>
         <p className="text-sm text-muted-foreground mb-4">
-          {quiz.status === "draft" &&
-            "Open the lobby so players can join with the quiz code."}
-          {quiz.status === "lobby" && "Start the quiz when everyone is in."}
-          {quiz.status === "question" &&
-            "When most have answered (or time is up), click below to show results and then move to the next question."}
-          {quiz.status === "results" &&
-            "Reveal the leaderboard, then go to next question or end the quiz."}
-          {quiz.status === "leaderboard" &&
-            !isLastQuestion &&
-            "Go to the next question or end the quiz after the last one."}
-          {quiz.status === "leaderboard" &&
-            isLastQuestion &&
-            "This was the last question. End the quiz to show final results."}
-          {quiz.status === "finished" && "This quiz is over."}
+          {getHostControlMessage(quiz.status, isLastQuestion)}
         </p>
         <div className="flex flex-wrap gap-3">
           {quiz.status === "draft" && (
@@ -304,15 +325,36 @@ export function QuizDetail({ quizId, onBack }: Readonly<QuizDetailProps>) {
             </Button>
           )}
           {quiz.status === "question" && (
-            <Button
-              ref={showResultsRef}
-              onClick={handleShowResults}
-              size="default"
-              className="min-w-45"
-            >
-              <BarChart3 className="h-4 w-4" />
-              Show Results
-            </Button>
+            <div className="flex flex-wrap items-center gap-3">
+              {questionTimeLeft !== null && (
+                <div
+                  className="flex items-center gap-1.5 rounded-lg border border-border bg-muted/50 px-3 py-2 text-sm"
+                  role="timer"
+                  aria-live="polite"
+                  aria-label={`Time left: ${questionTimeLeft} seconds`}
+                >
+                  <Timer className="h-4 w-4 text-muted-foreground" />
+                  <span
+                    className={`font-bold tabular-nums ${
+                      questionTimeLeft <= 5
+                        ? "text-destructive"
+                        : "text-foreground"
+                    }`}
+                  >
+                    {questionTimeLeft}s
+                  </span>
+                </div>
+              )}
+              <Button
+                ref={showResultsRef}
+                onClick={handleShowResults}
+                size="default"
+                className="min-w-45"
+              >
+                <BarChart3 className="h-4 w-4" />
+                Show Results
+              </Button>
+            </div>
           )}
           {quiz.status === "results" && (
             <Button
@@ -468,29 +510,25 @@ export function QuizDetail({ quizId, onBack }: Readonly<QuizDetailProps>) {
               quiz.status !== "draft" &&
               quiz.status !== "lobby" &&
               i < quiz.current_question_index;
+            const isActive =
+              isCurrent && quiz.status !== "draft" && quiz.status !== "lobby";
+            const rowClass = isActive
+              ? "bg-primary/10 border border-primary/20"
+              : isPast
+              ? "bg-muted/50 text-muted-foreground"
+              : "bg-secondary/50";
+            const badgeClass = isActive
+              ? "bg-primary text-primary-foreground"
+              : isPast
+              ? "bg-muted text-muted-foreground"
+              : "bg-secondary text-secondary-foreground";
             return (
               <div
                 key={q.id}
-                className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm ${
-                  isCurrent &&
-                  quiz.status !== "draft" &&
-                  quiz.status !== "lobby"
-                    ? "bg-primary/10 border border-primary/20"
-                    : isPast
-                    ? "bg-muted/50 text-muted-foreground"
-                    : "bg-secondary/50"
-                }`}
+                className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm ${rowClass}`}
               >
                 <span
-                  className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
-                    isCurrent &&
-                    quiz.status !== "draft" &&
-                    quiz.status !== "lobby"
-                      ? "bg-primary text-primary-foreground"
-                      : isPast
-                      ? "bg-muted text-muted-foreground"
-                      : "bg-secondary text-secondary-foreground"
-                  }`}
+                  className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold ${badgeClass}`}
                 >
                   {i + 1}
                 </span>

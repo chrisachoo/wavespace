@@ -153,30 +153,19 @@ export function PlayClient({
   async function handleAnswer(optionIndex: number) {
     if (hasAnswered || !quiz || !questions.length) return;
 
-    setHasAnswered(true);
-    setSelectedOption(optionIndex);
-
     const currentQuestion = questions[quiz.current_question_index];
     if (!currentQuestion) return;
 
-    const isCorrect = optionIndex === currentQuestion.correct_option;
+    setHasAnswered(true);
+    setSelectedOption(optionIndex);
 
     const supabase = createClient();
-
-    await supabase.from("answers").insert({
-      quiz_id: quizId,
-      question_id: currentQuestion.id,
-      participant_id: participantId,
-      selected_option: optionIndex,
-      is_correct: isCorrect,
+    await supabase.rpc("submit_answer", {
+      p_quiz_id: quizId,
+      p_question_id: currentQuestion.id,
+      p_participant_id: participantId,
+      p_selected_option: optionIndex,
     });
-
-    if (isCorrect && currentParticipant) {
-      await supabase
-        .from("participants")
-        .update({ score: currentParticipant.score + 10 })
-        .eq("id", participantId);
-    }
   }
 
   if (loading) {

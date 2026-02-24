@@ -48,6 +48,34 @@ export function AdminDashboard() {
     fetchQuizzes();
   }
 
+  function renderMainContent() {
+    if (loading) {
+      return (
+        <div className="flex items-center justify-center py-20">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+        </div>
+      );
+    }
+    if (view === "list") {
+      return (
+        <QuizList
+          quizzes={quizzes}
+          onSelect={handleSelectQuiz}
+          onRefresh={fetchQuizzes}
+        />
+      );
+    }
+    if (view === "create") {
+      return (
+        <CreateQuizForm onCreated={handleQuizCreated} onCancel={handleBack} />
+      );
+    }
+    if (selectedQuizId) {
+      return <QuizDetail quizId={selectedQuizId} onBack={handleBack} />;
+    }
+    return null;
+  }
+
   return (
     <div className="min-h-dvh bg-background">
       <header className="sticky top-0 z-10 border-b border-border bg-card/80 backdrop-blur-sm">
@@ -75,23 +103,7 @@ export function AdminDashboard() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-5xl px-4 py-6">
-        {loading ? (
-          <div className="flex items-center justify-center py-20">
-            <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-          </div>
-        ) : view === "list" ? (
-          <QuizList
-            quizzes={quizzes}
-            onSelect={handleSelectQuiz}
-            onRefresh={fetchQuizzes}
-          />
-        ) : view === "create" ? (
-          <CreateQuizForm onCreated={handleQuizCreated} onCancel={handleBack} />
-        ) : selectedQuizId ? (
-          <QuizDetail quizId={selectedQuizId} onBack={handleBack} />
-        ) : null}
-      </main>
+      <main className="mx-auto max-w-5xl px-4 py-6">{renderMainContent()}</main>
     </div>
   );
 }
