@@ -2,7 +2,7 @@ INSERT INTO public.quizzes (id, title, code, status, current_question_index)
 VALUES (
   'b2c3d4e5-f6a7-8901-bcde-f23456789012',
   'General Knowledge',
-  'GENK1',
+  'GENXK1',
   'draft',
   0
 )
