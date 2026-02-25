@@ -47,7 +47,7 @@ VALUES
     'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
     'What font family does Wavespace use for its typography?',
     '["Inter", "Geist", "JetBrains Mono", "Poppins"]'::jsonb,
-    1,
+    2,
     40,
     3
   ),
