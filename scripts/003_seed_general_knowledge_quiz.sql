@@ -2,7 +2,7 @@ INSERT INTO public.quizzes (id, title, code, status, current_question_index)
 VALUES (
   'b2c3d4e5-f6a7-8901-bcde-f23456789012',
   'General Knowledge',
-  'GENK1',
+  'GENXK1',
   'draft',
   0
 )
@@ -18,7 +18,7 @@ VALUES
     'What is the largest planet in our solar system?',
     '["Mars", "Saturn", "Jupiter", "Neptune"]'::jsonb,
     2,
-    20,
+    40,
     0
   ),
   (
@@ -26,7 +26,7 @@ VALUES
     'In which year did the first human land on the Moon?',
     '["1965", "1969", "1971", "1973"]'::jsonb,
     1,
-    20,
+    40,
     1
   ),
   (
@@ -34,7 +34,7 @@ VALUES
     'What is the capital of Japan?',
     '["Seoul", "Beijing", "Tokyo", "Bangkok"]'::jsonb,
     2,
-    15,
+    40,
     2
   ),
   (
@@ -42,7 +42,7 @@ VALUES
     'Which gas do plants absorb from the air for photosynthesis?',
     '["Oxygen", "Nitrogen", "Carbon dioxide", "Hydrogen"]'::jsonb,
     2,
-    20,
+    40,
     3
   ),
   (
@@ -50,7 +50,7 @@ VALUES
     'How many continents are there on Earth?',
     '["5", "6", "7", "8"]'::jsonb,
     2,
-    15,
+    40,
     4
   ),
   (
@@ -58,6 +58,6 @@ VALUES
     'Who wrote "Romeo and Juliet"?',
     '["Charles Dickens", "William Shakespeare", "Jane Austen", "Mark Twain"]'::jsonb,
     1,
-    20,
+    40,
     5
   );

@@ -39,7 +39,7 @@ export function CreateQuizForm({
       question_text: "",
       options: ["", "", "", ""],
       correct_option: 0,
-      time_limit: 20,
+      time_limit: 40,
     },
   ]);
   const [saving, setSaving] = useState(false);
@@ -52,7 +52,7 @@ export function CreateQuizForm({
         question_text: "",
         options: ["", "", "", ""],
         correct_option: 0,
-        time_limit: 20,
+        time_limit: 40,
       },
     ]);
   }

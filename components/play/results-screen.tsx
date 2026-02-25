@@ -1,5 +1,5 @@
 import type { Participant, Question } from "@/lib/types";
-import { CheckCircle2, XCircle } from "lucide-react";
+import { CheckCircle2, Timer, XCircle } from "lucide-react";
 
 interface QuestionResultContentProps {
   didNotAnswer: boolean;
@@ -20,7 +20,7 @@ function QuestionResultContent({
         <XCircle className="h-16 w-16 text-muted-foreground" />
         <h2 className="text-2xl font-bold text-foreground">No Answer</h2>
         <p className="text-muted-foreground text-center">
-          You didn't answer in time.
+          You didn&apos;t answer in time.
         </p>
       </div>
     );
@@ -31,6 +31,12 @@ function QuestionResultContent({
         <CheckCircle2 className="h-16 w-16 text-[oklch(0.65_0.19_145)]" />
         <h2 className="text-2xl font-bold text-foreground">Correct!</h2>
         <p className="text-muted-foreground text-center">+10 points</p>
+        <p className="text-sm text-muted-foreground text-center mt-1">
+          Correct answer:{" "}
+          <span className="font-semibold text-foreground">
+            {options[correctOption]}
+          </span>
+        </p>
       </div>
     );
   }
@@ -82,6 +88,11 @@ export function ResultsScreen({
             </p>
           </div>
         )}
+
+        <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+          <Timer className="h-4 w-4" />
+          <span>Question time limit: {question.time_limit}s</span>
+        </div>
 
         <p className="text-sm text-muted-foreground">
           Waiting for next question...

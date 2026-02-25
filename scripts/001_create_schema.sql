@@ -1,4 +1,12 @@
 -- Wavespace Database Schema
+--
+-- Run order (fresh DB: drop tables then run in this order):
+--   1. 001_create_schema.sql   (tables, RLS, policies, realtime, indexes)
+--   2. 005_submit_answer_rpc.sql
+--   3. 006_join_quiz_rpc.sql
+--   4. 002_seed_stack_quiz.sql      (optional seed)
+--   5. 003_seed_general_knowledge_quiz.sql  (optional seed)
+-- Skip 004 when 001 is run fresh (001 already has delete policies).
 
 -- Quizzes table: the central table that drives realtime sync
 create table if not exists public.quizzes (
@@ -17,7 +25,7 @@ create table if not exists public.questions (
   question_text text not null,
   options jsonb not null default '[]'::jsonb,
   correct_option int not null,
-  time_limit int not null default 20,
+  time_limit int not null default 40,
   sort_order int not null default 0,
   created_at timestamptz default now()
 );

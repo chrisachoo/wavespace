@@ -40,34 +40,47 @@ export function JoinQuizForm() {
         return;
       }
 
-      if (quiz.status === "draft") {
-        setError("This quiz hasn't started yet. Wait for the host.");
-        setLoading(false);
-        return;
-      }
+      const { data: result, error: rpcError } = await supabase.rpc(
+        "join_quiz",
+        {
+          p_quiz_id: quiz.id,
+          p_nickname: nickname.trim(),
+        }
+      );
 
-      if (quiz.status === "finished") {
-        setError("This quiz has already ended.");
-        setLoading(false);
-        return;
-      }
-
-      const { data: participant, error: participantError } = await supabase
-        .from("participants")
-        .insert({
-          quiz_id: quiz.id,
-          nickname: nickname.trim(),
-        })
-        .select("id")
-        .single();
-
-      if (participantError || !participant) {
+      if (rpcError) {
         setError("Could not join the quiz. Please try again.");
         setLoading(false);
         return;
       }
 
-      router.push(`/play/${quiz.id}?participantId=${participant.id}`);
+      const res = result as {
+        ok: boolean;
+        error?: string;
+        participant_id?: string;
+      };
+      if (!res.ok) {
+        if (res.error === "quiz_full") {
+          setError("Quiz is full (max 70 players). Try again later.");
+        } else if (res.error === "quiz_not_started") {
+          setError("This quiz hasn't started yet. Wait for the host.");
+        } else if (res.error === "quiz_ended") {
+          setError("This quiz has already ended.");
+        } else if (res.error === "nickname_required") {
+          setError("Please enter a nickname.");
+        } else {
+          setError("Could not join the quiz. Please try again.");
+        }
+        setLoading(false);
+        return;
+      }
+
+      if (res.participant_id) {
+        router.push(`/play/${quiz.id}?participantId=${res.participant_id}`);
+      } else {
+        setError("Could not join the quiz. Please try again.");
+        setLoading(false);
+      }
     } catch {
       setError("Something went wrong. Please try again.");
       setLoading(false);

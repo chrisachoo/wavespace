@@ -9,6 +9,13 @@ interface FinishedScreenProps {
   currentParticipantId: string;
 }
 
+function getRankBadgeClass(index: number): string {
+  if (index === 0) return "bg-[oklch(0.7_0.17_55)] text-white";
+  if (index === 1) return "bg-muted text-muted-foreground";
+  if (index === 2) return "bg-[oklch(0.7_0.12_55)] text-white";
+  return "bg-secondary text-secondary-foreground";
+}
+
 export function FinishedScreen({
   participants,
   currentParticipantId,
@@ -51,15 +58,9 @@ export function FinishedScreen({
               >
                 <div className="flex items-center gap-3">
                   <span
-                    className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold ${
-                      index === 0
-                        ? "bg-[oklch(0.7_0.17_55)] text-white"
-                        : index === 1
-                        ? "bg-muted text-muted-foreground"
-                        : index === 2
-                        ? "bg-[oklch(0.7_0.12_55)] text-white"
-                        : "bg-secondary text-secondary-foreground"
-                    }`}
+                    className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold ${getRankBadgeClass(
+                      index
+                    )}`}
                   >
                     {index + 1}
                   </span>
