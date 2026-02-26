@@ -105,15 +105,15 @@ export function DriverClient({ quizId }: Readonly<DriverClientProps>) {
 
   if (loading) {
     return (
-      <main className="flex min-h-dvh items-center justify-center bg-zinc-950">
-        <div className="h-12 w-12 animate-spin rounded-full border-4 border-teal-500 border-t-transparent" />
+      <main className="flex min-h-dvh items-center justify-center bg-background">
+        <div className="h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent" />
       </main>
     );
   }
 
   if (!quiz) {
     return (
-      <main className="flex min-h-dvh items-center justify-center bg-zinc-950 text-zinc-400">
+      <main className="flex min-h-dvh items-center justify-center bg-background text-muted-foreground">
         <p>Quiz not found.</p>
       </main>
     );
@@ -122,9 +122,7 @@ export function DriverClient({ quizId }: Readonly<DriverClientProps>) {
   const status = quiz.status;
   const currentQuestion = questions[quiz.current_question_index] ?? null;
   const joinUrl =
-    typeof window !== "undefined"
-      ? `${window.location.origin}`
-      : "";
+    typeof window !== "undefined" ? `${window.location.origin}` : "";
   const currentAnswers = currentQuestion
     ? answers.filter((a) => a.question_id === currentQuestion.id)
     : [];
@@ -132,27 +130,31 @@ export function DriverClient({ quizId }: Readonly<DriverClientProps>) {
 
   if (status === "lobby") {
     return (
-      <main className="flex min-h-dvh flex-col items-center justify-center bg-zinc-950 px-12 py-16">
+      <main className="flex min-h-dvh flex-col items-center justify-center bg-background px-12 py-16">
         <div className="flex flex-col items-center gap-16 text-center">
           <div className="flex flex-col items-center gap-6">
-            <div className="flex h-24 w-24 items-center justify-center rounded-3xl bg-teal-600 text-white">
+            <div className="flex h-24 w-24 items-center justify-center rounded-3xl bg-primary text-primary-foreground">
               <Radio className="h-12 w-12" />
             </div>
-            <h1 className="text-6xl font-bold tracking-tight text-white md:text-7xl lg:text-8xl">
+            <h1 className="text-6xl font-bold tracking-tight text-foreground md:text-7xl lg:text-8xl">
               Wavespace
             </h1>
           </div>
-          <p className="text-2xl text-zinc-400 md:text-3xl lg:text-4xl">
+          <p className="text-2xl text-muted-foreground md:text-3xl lg:text-4xl">
             Join now at{" "}
-            <span className="font-mono font-semibold text-white">{joinUrl}</span>
+            <span className="font-mono font-semibold text-foreground">
+              {joinUrl}
+            </span>
           </p>
-          <p className="text-xl text-zinc-500">Enter code: {quiz.code}</p>
-          <div className="flex items-center gap-3 rounded-2xl bg-zinc-900 px-8 py-4">
-            <Users className="h-10 w-10 text-teal-400" />
-            <span className="text-3xl font-bold tabular-nums text-white md:text-4xl">
+          <p className="text-xl text-muted-foreground">
+            Enter code: {quiz.code}
+          </p>
+          <div className="flex items-center gap-3 rounded-2xl bg-card border border-border px-8 py-4">
+            <Users className="h-10 w-10 text-primary" />
+            <span className="text-3xl font-bold tabular-nums text-foreground md:text-4xl">
               {participants.length}
             </span>
-            <span className="text-xl text-zinc-400">
+            <span className="text-xl text-muted-foreground">
               {participants.length === 1 ? "participant" : "participants"}
             </span>
           </div>
@@ -164,26 +166,26 @@ export function DriverClient({ quizId }: Readonly<DriverClientProps>) {
   if (status === "question" || status === "active") {
     if (!currentQuestion) {
       return (
-        <main className="flex min-h-dvh items-center justify-center bg-zinc-950 text-zinc-400">
+        <main className="flex min-h-dvh items-center justify-center bg-background text-muted-foreground">
           <p className="text-2xl">Waiting for question…</p>
         </main>
       );
     }
     return (
-      <main className="flex min-h-dvh flex-col items-center justify-center bg-zinc-950 px-12 py-16">
+      <main className="flex min-h-dvh flex-col items-center justify-center bg-background px-12 py-16">
         <div className="flex w-full max-w-5xl flex-col items-center gap-12 text-center">
-          <p className="text-2xl font-medium text-zinc-500 md:text-3xl">
+          <p className="text-2xl font-medium text-muted-foreground md:text-3xl">
             Question {quiz.current_question_index + 1} of {questions.length}
           </p>
-          <h2 className="text-4xl font-bold leading-tight text-white md:text-5xl lg:text-6xl xl:text-7xl">
+          <h2 className="text-4xl font-bold leading-tight text-foreground md:text-5xl lg:text-6xl xl:text-7xl">
             {currentQuestion.question_text}
           </h2>
           <div
-            className="rounded-2xl bg-zinc-900 px-8 py-4"
+            className="rounded-2xl bg-card border border-border px-8 py-4"
             role="status"
             aria-live="polite"
           >
-            <span className="text-3xl font-bold tabular-nums text-teal-400 md:text-4xl">
+            <span className="text-3xl font-bold tabular-nums text-primary md:text-4xl">
               Responses: {responseCount}
             </span>
           </div>
@@ -194,14 +196,14 @@ export function DriverClient({ quizId }: Readonly<DriverClientProps>) {
 
   if (status === "results") {
     return (
-      <main className="flex min-h-dvh flex-col items-center justify-center bg-zinc-950 px-12 py-16">
+      <main className="flex min-h-dvh flex-col items-center justify-center bg-background px-12 py-16">
         <div className="flex flex-col items-center gap-8 text-center">
           {currentQuestion && (
-            <p className="text-3xl text-zinc-400 md:text-4xl">
+            <p className="text-3xl text-muted-foreground md:text-4xl">
               {currentQuestion.question_text}
             </p>
           )}
-          <p className="text-2xl font-medium text-white md:text-3xl">
+          <p className="text-2xl font-medium text-foreground md:text-3xl">
             Revealing results…
           </p>
         </div>
@@ -215,11 +217,11 @@ export function DriverClient({ quizId }: Readonly<DriverClientProps>) {
     const isFinished = status === "finished";
 
     return (
-      <main className="flex min-h-dvh flex-col items-center justify-center bg-zinc-950 px-12 py-16">
+      <main className="flex min-h-dvh flex-col items-center justify-center bg-background px-12 py-16">
         <div className="flex w-full max-w-4xl flex-col items-center gap-12">
           <div className="flex flex-col items-center gap-4">
-            <Trophy className="h-16 w-16 text-amber-500 md:h-20 md:w-20" />
-            <h2 className="text-4xl font-bold text-white md:text-5xl lg:text-6xl">
+            <Trophy className="h-16 w-16 text-[oklch(0.7_0.17_55)] md:h-20 md:w-20" />
+            <h2 className="text-4xl font-bold text-foreground md:text-5xl lg:text-6xl">
               {isFinished ? "Final Leaderboard" : "Leaderboard"}
             </h2>
           </div>
@@ -227,26 +229,30 @@ export function DriverClient({ quizId }: Readonly<DriverClientProps>) {
             {top5.map(({ participant, rank }) => (
               <li
                 key={participant.id}
-                className="flex items-center justify-between rounded-2xl bg-zinc-900 px-8 py-5 transition-all duration-300 ease-out"
+                className="flex items-center justify-between rounded-2xl bg-card border border-border px-8 py-5 transition-all duration-300 ease-out"
               >
                 <div className="flex items-center gap-6">
                   <span
-                    className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-full text-xl font-bold md:h-16 md:w-16 md:text-2xl ${getDriverRankClass(rank)}`}
+                    className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-full text-xl font-bold md:h-16 md:w-16 md:text-2xl ${getDriverRankClass(
+                      rank
+                    )}`}
                   >
                     {rank}
                   </span>
-                  <span className="text-2xl font-semibold text-white md:text-3xl">
+                  <span className="text-2xl font-semibold text-foreground md:text-3xl">
                     {participant.nickname}
                   </span>
                 </div>
-                <span className="text-3xl font-bold tabular-nums text-white md:text-4xl">
+                <span className="text-3xl font-bold tabular-nums text-foreground md:text-4xl">
                   {participant.score}
                 </span>
               </li>
             ))}
           </ul>
           {!isFinished && (
-            <p className="text-xl text-zinc-500">Next question coming up…</p>
+            <p className="text-xl text-muted-foreground">
+              Next question coming up…
+            </p>
           )}
         </div>
       </main>
@@ -254,7 +260,7 @@ export function DriverClient({ quizId }: Readonly<DriverClientProps>) {
   }
 
   return (
-    <main className="flex min-h-dvh items-center justify-center bg-zinc-950 text-zinc-400">
+    <main className="flex min-h-dvh items-center justify-center bg-background text-muted-foreground">
       <p className="text-2xl">Waiting for the host to start…</p>
     </main>
   );
@@ -263,12 +269,12 @@ export function DriverClient({ quizId }: Readonly<DriverClientProps>) {
 function getDriverRankClass(rank: number): string {
   switch (rank) {
     case 1:
-      return "bg-amber-500 text-white";
+      return "bg-primary text-primary-foreground";
     case 2:
-      return "bg-zinc-500 text-white";
+      return "bg-muted text-muted-foreground";
     case 3:
-      return "bg-amber-700 text-white";
+      return "bg-[oklch(0.7_0.17_55)] text-white";
     default:
-      return "bg-zinc-700 text-zinc-300";
+      return "bg-secondary text-secondary-foreground";
   }
 }

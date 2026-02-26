@@ -19,7 +19,11 @@ export function getRankedParticipants(
   for (let i = 0; i < sorted.length; i++) {
     const participant = sorted[i];
     const rank =
-      i === 0 ? 1 : sorted[i].score === sorted[i - 1].score ? result[i - 1].rank : i + 1;
+      i === 0
+        ? 1
+        : sorted[i].score === sorted[i - 1].score
+        ? result[i - 1].rank
+        : i + 1;
     result.push({ participant, rank });
   }
   return result;
