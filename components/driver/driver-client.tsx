@@ -4,6 +4,7 @@ import { getRankedParticipants } from "@/lib/ranked-participants";
 import { createClient } from "@/lib/supabase/client";
 import type { Answer, Participant, Question, Quiz } from "@/lib/types";
 import { Radio, Trophy, Users } from "lucide-react";
+import QRCode from "qrcode";
 import { useCallback, useEffect, useState } from "react";
 
 interface DriverClientProps {
@@ -16,6 +17,9 @@ export function DriverClient({ quizId }: Readonly<DriverClientProps>) {
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [answers, setAnswers] = useState<Answer[]>([]);
   const [loading, setLoading] = useState(true);
+  const [joinPageQrDataUrl, setJoinPageQrDataUrl] = useState<string | null>(
+    null
+  );
 
   const fetchData = useCallback(async () => {
     const supabase = createClient();
@@ -103,6 +107,15 @@ export function DriverClient({ quizId }: Readonly<DriverClientProps>) {
     };
   }, [quizId]);
 
+  // QR code: encodes app index URL only (single responsibility: redirect to join page).
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const indexUrl = window.location.origin;
+    QRCode.toDataURL(indexUrl, { width: 280, margin: 2 })
+      .then(setJoinPageQrDataUrl)
+      .catch(() => setJoinPageQrDataUrl(null));
+  }, []);
+
   if (loading) {
     return (
       <main className="flex min-h-dvh items-center justify-center bg-background">
@@ -136,19 +149,37 @@ export function DriverClient({ quizId }: Readonly<DriverClientProps>) {
             <div className="flex h-24 w-24 items-center justify-center rounded-3xl bg-primary text-primary-foreground">
               <Radio className="h-12 w-12" />
             </div>
-            <h1 className="text-6xl font-bold tracking-tight text-foreground md:text-7xl lg:text-8xl">
+            <h1 className="text-4xl font-bold tracking-tight text-foreground">
               Wavespace
             </h1>
           </div>
-          <p className="text-2xl text-muted-foreground md:text-3xl lg:text-4xl">
-            Join now at{" "}
-            <span className="font-mono font-semibold text-foreground">
-              {joinUrl}
-            </span>
-          </p>
-          <p className="text-xl text-muted-foreground">
-            Enter code: {quiz.code}
-          </p>
+          <div className="flex flex-col items-center space-y-4">
+            <div className="flex flex-col items-center gap-2">
+              <p className="text-xl text-muted-foreground md:text-2xl">
+                Join now at{" "}
+                <span className="font-mono font-semibold text-foreground">
+                  {joinUrl}
+                </span>
+              </p>
+              <p className="text-xl text-muted-foreground">
+                Enter code: {quiz.code}
+              </p>
+            </div>
+          </div>
+          {joinPageQrDataUrl && (
+            <figure className="flex flex-col items-center gap-3">
+              <img
+                src={joinPageQrDataUrl}
+                alt="Scan to open join page"
+                width={280}
+                height={280}
+                className="rounded-xl border border-border bg-card p-2"
+              />
+              <figcaption className="text-lg text-muted-foreground">
+                Scan to open join page
+              </figcaption>
+            </figure>
+          )}
           <div className="flex items-center gap-3 rounded-2xl bg-card border border-border px-8 py-4">
             <Users className="h-10 w-10 text-primary" />
             <span className="text-3xl font-bold tabular-nums text-foreground md:text-4xl">
