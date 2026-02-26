@@ -1,3 +1,4 @@
+import { getRankedParticipants } from "@/lib/ranked-participants";
 import type { Participant } from "@/lib/types";
 import { Trophy } from "lucide-react";
 
@@ -6,18 +7,24 @@ interface LeaderboardScreenProps {
   currentParticipantId: string;
 }
 
-function setStyling(value: number) {
-  if (value === 0) return "bg-teal text-white";
-  if (value === 1) return "bg-muted text-muted-foreground";
-  if (value === 2) return "bg-amber text-white";
-  else return "bg-secondary text-secondary-foreground";
+function getRankBadgeClass(rank: number): string {
+  switch (rank) {
+    case 1:
+      return "bg-teal text-white";
+    case 2:
+      return "bg-muted text-muted-foreground";
+    case 3:
+      return "bg-amber text-white";
+    default:
+      return "bg-secondary text-secondary-foreground";
+  }
 }
 
 export function LeaderboardScreen({
   participants,
   currentParticipantId,
 }: Readonly<LeaderboardScreenProps>) {
-  const sorted = [...participants].sort((a, b) => b.score - a.score);
+  const ranked = getRankedParticipants(participants);
 
   return (
     <main className="flex min-h-dvh flex-col items-center justify-center bg-background px-4 py-8">
@@ -28,7 +35,7 @@ export function LeaderboardScreen({
         </div>
 
         <div className="w-full flex flex-col gap-2">
-          {sorted.map((p, index) => {
+          {ranked.map(({ participant: p, rank }) => {
             const isMe = p.id === currentParticipantId;
             return (
               <div
@@ -41,11 +48,11 @@ export function LeaderboardScreen({
               >
                 <div className="flex items-center gap-3">
                   <span
-                    className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold ${setStyling(
-                      index
+                    className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold ${getRankBadgeClass(
+                      rank
                     )}`}
                   >
-                    {index + 1}
+                    {rank}
                   </span>
                   <span
                     className={`font-medium ${

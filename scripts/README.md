@@ -13,5 +13,10 @@ For a **fresh database**, run in this order (use 0 when resetting the DB):
 
 **Skip** `004_allow_delete_participants_answers.sql` when you run `001` on a clean DB; `001` already includes the delete policies. Use `004` only if you have an older DB that was created before those policies existed.
 
+
+bun run db:seed scripts/000_drop_all_tables.sql
+bun run db:seed scripts/001_create_schema.sql
+bun run db:seed scripts/005_submit_answer_rpc.sql
+bun run db:seed scripts/006_join_quiz_rpc.sql
 bun run db:seed scripts/002_seed_stack_quiz.sql
 bun run db:seed scripts/003_seed_general_knowledge_quiz.sql

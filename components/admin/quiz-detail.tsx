@@ -9,6 +9,7 @@ import {
   BarChart3,
   CheckCircle2,
   Copy,
+  Monitor,
   Play,
   RotateCcw,
   SkipForward,
@@ -17,6 +18,7 @@ import {
   Trophy,
   Users,
 } from "lucide-react";
+import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 interface QuizDetailProps {
@@ -289,6 +291,16 @@ export function QuizDetail({ quizId, onBack }: Readonly<QuizDetailProps>) {
                 <Copy className="h-3 w-3" />
               )}
             </button>
+            <Link
+              href={`/driver/${quizId}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 rounded-md bg-secondary px-2.5 py-1 text-sm text-secondary-foreground hover:bg-muted transition-colors"
+              title="Open driver view (projector)"
+            >
+              <Monitor className="h-3 w-3" />
+              Driver
+            </Link>
           </div>
         </div>
         <div className="flex items-center gap-4 text-sm text-muted-foreground">

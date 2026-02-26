@@ -1,4 +1,5 @@
 import { buttonVariants } from "@/components/ui/button";
+import { getRankedParticipants } from "@/lib/ranked-participants";
 import type { Participant } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { Home, Trophy } from "lucide-react";
@@ -9,20 +10,27 @@ interface FinishedScreenProps {
   currentParticipantId: string;
 }
 
-function getRankBadgeClass(index: number): string {
-  if (index === 0) return "bg-[oklch(0.7_0.17_55)] text-white";
-  if (index === 1) return "bg-muted text-muted-foreground";
-  if (index === 2) return "bg-[oklch(0.7_0.12_55)] text-white";
-  return "bg-secondary text-secondary-foreground";
+function getRankBadgeClass(rank: number): string {
+  switch (rank) {
+    case 1:
+      return "bg-[oklch(0.7_0.17_55)] text-white";
+    case 2:
+      return "bg-muted text-muted-foreground";
+    case 3:
+      return "bg-[oklch(0.7_0.12_55)] text-white";
+    default:
+      return "bg-secondary text-secondary-foreground";
+  }
 }
 
 export function FinishedScreen({
   participants,
   currentParticipantId,
 }: Readonly<FinishedScreenProps>) {
-  const sorted = [...participants].sort((a, b) => b.score - a.score);
-  const myRank = sorted.findIndex((p) => p.id === currentParticipantId) + 1;
-  const me = sorted.find((p) => p.id === currentParticipantId);
+  const ranked = getRankedParticipants(participants);
+  const myEntry = ranked.find((r) => r.participant.id === currentParticipantId);
+  const me = myEntry?.participant;
+  const myRank = myEntry?.rank;
 
   return (
     <main className="flex min-h-dvh flex-col items-center justify-center bg-background px-4 py-8">
@@ -32,20 +40,20 @@ export function FinishedScreen({
           <h2 className="text-2xl font-bold text-foreground">Quiz Complete!</h2>
         </div>
 
-        {me && (
+        {me && myRank !== undefined && (
           <div className="w-full rounded-xl border-2 border-primary bg-primary/5 p-6 text-center">
             <p className="text-sm text-muted-foreground">Your Final Result</p>
             <p className="text-4xl font-bold text-foreground mt-1 tabular-nums">
               {me.score} pts
             </p>
             <p className="text-sm text-muted-foreground mt-1">
-              Rank #{myRank} of {sorted.length}
+              Rank #{myRank} of {ranked.length}
             </p>
           </div>
         )}
 
         <div className="w-full flex flex-col gap-2">
-          {sorted.slice(0, 5).map((p, index) => {
+          {ranked.slice(0, 5).map(({ participant: p, rank }) => {
             const isMe = p.id === currentParticipantId;
             return (
               <div
@@ -59,10 +67,10 @@ export function FinishedScreen({
                 <div className="flex items-center gap-3">
                   <span
                     className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-bold ${getRankBadgeClass(
-                      index
+                      rank
                     )}`}
                   >
-                    {index + 1}
+                    {rank}
                   </span>
                   <span
                     className={`font-medium ${
