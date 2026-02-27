@@ -1,6 +1,7 @@
 import { JoinQuizForm } from "@/components/join-quiz-form";
 import { Radio } from "lucide-react";
 import Link from "next/link";
+import { Suspense } from "react";
 
 export default function HomePage() {
   return (
@@ -18,9 +19,21 @@ export default function HomePage() {
           </p>
         </div>
 
-        <div className="w-full rounded-2xl border border-border bg-card p-6 shadow-sm">
-          <JoinQuizForm />
-        </div>
+        <Suspense
+          fallback={
+            <div className="w-full rounded-2xl border border-border bg-card p-6 shadow-sm">
+              <div className="flex flex-col items-center gap-3">
+                <div className="h-6 w-32 rounded-full bg-muted animate-pulse" />
+                <div className="h-10 w-full rounded-lg bg-muted animate-pulse" />
+                <div className="h-10 w-full rounded-lg bg-muted animate-pulse" />
+              </div>
+            </div>
+          }
+        >
+          <div className="w-full rounded-2xl border border-border bg-card p-6 shadow-sm">
+            <JoinQuizForm />
+          </div>
+        </Suspense>
 
         <p className="text-xs text-muted-foreground text-center">
           Ask your host for the quiz code to get started.
