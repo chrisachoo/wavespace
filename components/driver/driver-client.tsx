@@ -194,9 +194,10 @@ export function DriverClient({ quizId }: Readonly<DriverClientProps>) {
                   {joinUrl}
                 </span>
               </p>
-              <p className="text-xl text-muted-foreground">
-                Enter code: {quiz.code}
-              </p>
+              <p className="text-xl text-muted-foreground">Enter code:</p>
+              <span className="text-4xl md:text-5xl font-extrabold font-mono tracking-[0.3em] text-foreground">
+                {quiz.code}
+              </span>
             </div>
           </div>
           {joinPageQrDataUrl && (
@@ -294,6 +295,12 @@ export function DriverClient({ quizId }: Readonly<DriverClientProps>) {
             <h2 className="text-4xl font-bold leading-tight text-foreground md:text-5xl lg:text-6xl xl:text-7xl">
               {currentQuestion.question_text}
             </h2>
+            <p className="text-xl font-semibold text-foreground">
+              Correct answer:{" "}
+              <span className="font-bold">
+                {currentQuestion.options[currentQuestion.correct_option]}
+              </span>
+            </p>
             <p className="text-lg text-muted-foreground">
               Time limit: {currentQuestion.time_limit}s
             </p>

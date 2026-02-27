@@ -20,3 +20,4 @@ bun run db:seed scripts/005_submit_answer_rpc.sql
 bun run db:seed scripts/006_join_quiz_rpc.sql
 bun run db:seed scripts/002_seed_stack_quiz.sql
 bun run db:seed scripts/003_seed_general_knowledge_quiz.sql
+bun run db:seed scripts/007_townhall_takeover.sql
