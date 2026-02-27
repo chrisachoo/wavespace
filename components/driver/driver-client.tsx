@@ -3,7 +3,7 @@
 import { getRankedParticipants } from "@/lib/ranked-participants";
 import { createClient } from "@/lib/supabase/client";
 import type { Answer, Participant, Question, Quiz } from "@/lib/types";
-import { Radio, Trophy, Users } from "lucide-react";
+import { Radio, Timer, Trophy, Users } from "lucide-react";
 import QRCode from "qrcode";
 import { useCallback, useEffect, useState } from "react";
 
@@ -20,6 +20,7 @@ export function DriverClient({ quizId }: Readonly<DriverClientProps>) {
   const [joinPageQrDataUrl, setJoinPageQrDataUrl] = useState<string | null>(
     null
   );
+  const [questionTimeLeft, setQuestionTimeLeft] = useState<number | null>(null);
 
   const fetchData = useCallback(async () => {
     const supabase = createClient();
@@ -91,13 +92,19 @@ export function DriverClient({ quizId }: Readonly<DriverClientProps>) {
       .on(
         "postgres_changes",
         {
-          event: "INSERT",
+          event: "*",
           schema: "public",
           table: "answers",
           filter: `quiz_id=eq.${quizId}`,
         },
-        (payload) => {
-          setAnswers((prev) => [...prev, payload.new as Answer]);
+        () => {
+          const s = createClient();
+          s.from("answers")
+            .select("*")
+            .eq("quiz_id", quizId)
+            .then(({ data }) => {
+              if (data) setAnswers(data);
+            });
         }
       )
       .subscribe();
@@ -107,14 +114,40 @@ export function DriverClient({ quizId }: Readonly<DriverClientProps>) {
     };
   }, [quizId]);
 
+  // Countdown for current question so driver can see remaining time
+  useEffect(() => {
+    if (quiz?.status !== "question" && quiz?.status !== "active") {
+      return;
+    }
+    if (questionTimeLeft === null || questionTimeLeft <= 0) return;
+    const t = setInterval(() => {
+      setQuestionTimeLeft((prev) =>
+        prev !== null ? Math.max(0, prev - 1) : 0
+      );
+    }, 1000);
+    return () => clearInterval(t);
+  }, [quiz?.status, questionTimeLeft]);
+
+  useEffect(() => {
+    if (quiz?.status === "question" || quiz?.status === "active") {
+      const q = questions[quiz.current_question_index];
+      setQuestionTimeLeft(q?.time_limit ?? null);
+    } else {
+      setQuestionTimeLeft(null);
+    }
+  }, [quiz?.status, quiz?.current_question_index, questions]);
+
   // QR code: encodes app index URL only (single responsibility: redirect to join page).
   useEffect(() => {
     if (typeof window === "undefined") return;
-    const indexUrl = window.location.origin;
-    QRCode.toDataURL(indexUrl, { width: 280, margin: 2 })
+    if (!quiz?.code) return;
+    const joinUrl = `${window.location.origin}/?code=${encodeURIComponent(
+      quiz.code
+    )}`;
+    QRCode.toDataURL(joinUrl, { width: 280, margin: 2 })
       .then(setJoinPageQrDataUrl)
       .catch(() => setJoinPageQrDataUrl(null));
-  }, []);
+  }, [quiz?.code]);
 
   if (loading) {
     return (
@@ -211,6 +244,23 @@ export function DriverClient({ quizId }: Readonly<DriverClientProps>) {
           <h2 className="text-4xl font-bold leading-tight text-foreground md:text-5xl lg:text-6xl xl:text-7xl">
             {currentQuestion.question_text}
           </h2>
+          {questionTimeLeft !== null && (
+            <div
+              className="flex items-center gap-1.5 rounded-lg border border-border bg-muted/50 px-4 py-2 text-base"
+              role="timer"
+              aria-live="polite"
+              aria-label={`Time left: ${questionTimeLeft} seconds`}
+            >
+              <Timer className="h-5 w-5 text-muted-foreground" />
+              <span
+                className={`font-bold tabular-nums ${
+                  questionTimeLeft <= 5 ? "text-destructive" : "text-foreground"
+                }`}
+              >
+                {questionTimeLeft}s
+              </span>
+            </div>
+          )}
           <div
             className="rounded-2xl bg-card border border-border px-8 py-4"
             role="status"
@@ -226,17 +276,73 @@ export function DriverClient({ quizId }: Readonly<DriverClientProps>) {
   }
 
   if (status === "results") {
+    if (!currentQuestion) {
+      return (
+        <main className="flex min-h-dvh items-center justify-center bg-background text-muted-foreground">
+          <p className="text-2xl">Revealing results…</p>
+        </main>
+      );
+    }
+
     return (
       <main className="flex min-h-dvh flex-col items-center justify-center bg-background px-12 py-16">
-        <div className="flex flex-col items-center gap-8 text-center">
-          {currentQuestion && (
-            <p className="text-3xl text-muted-foreground md:text-4xl">
-              {currentQuestion.question_text}
+        <div className="flex w-full max-w-5xl flex-col items-center gap-10 text-center">
+          <div className="flex flex-col gap-4">
+            <p className="text-2xl font-medium text-muted-foreground md:text-3xl">
+              Results
             </p>
-          )}
-          <p className="text-2xl font-medium text-foreground md:text-3xl">
-            Revealing results…
-          </p>
+            <h2 className="text-4xl font-bold leading-tight text-foreground md:text-5xl lg:text-6xl xl:text-7xl">
+              {currentQuestion.question_text}
+            </h2>
+            <p className="text-lg text-muted-foreground">
+              Time limit: {currentQuestion.time_limit}s
+            </p>
+          </div>
+
+          <div className="flex flex-col items-center gap-6 w-full">
+            <div
+              className="rounded-2xl bg-card border border-border px-8 py-4"
+              role="status"
+              aria-live="polite"
+            >
+              <span className="text-3xl font-bold tabular-nums text-primary md:text-4xl">
+                Responses: {responseCount} / {participants.length}
+              </span>
+            </div>
+
+            <div className="grid w-full max-w-3xl grid-cols-1 gap-3 md:grid-cols-2">
+              {currentQuestion.options.map((option, index) => {
+                const answerCount = currentAnswers.filter(
+                  (answer) => answer.selected_option === index
+                ).length;
+                const isCorrect = index === currentQuestion.correct_option;
+
+                return (
+                  <div
+                    key={index}
+                    className={`flex items-center justify-between rounded-2xl px-4 py-3 text-lg md:text-xl ${
+                      isCorrect
+                        ? "bg-[oklch(0.65_0.19_145)]/10 border border-[oklch(0.65_0.19_145)]/40"
+                        : "bg-secondary border border-border/40"
+                    }`}
+                  >
+                    <span
+                      className={
+                        isCorrect
+                          ? "font-semibold text-foreground"
+                          : "text-secondary-foreground"
+                      }
+                    >
+                      {option}
+                    </span>
+                    <span className="text-xl font-bold tabular-nums text-foreground">
+                      {answerCount}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
         </div>
       </main>
     );

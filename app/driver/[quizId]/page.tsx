@@ -7,8 +7,8 @@ export const metadata = {
 export default async function DriverPage({
   params,
 }: {
-  params: Promise<{ quizId: string }>;
+  params: { quizId: string };
 }) {
-  const { quizId } = await params;
+  const { quizId } = params;
   return <DriverClient quizId={quizId} />;
 }

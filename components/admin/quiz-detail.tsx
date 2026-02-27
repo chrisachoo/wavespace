@@ -152,13 +152,19 @@ export function QuizDetail({ quizId, onBack }: Readonly<QuizDetailProps>) {
       .on(
         "postgres_changes",
         {
-          event: "INSERT",
+          event: "*",
           schema: "public",
           table: "answers",
           filter: `quiz_id=eq.${quizId}`,
         },
-        (payload) => {
-          setAnswers((prev) => [...prev, payload.new as Answer]);
+        () => {
+          const s = createClient();
+          s.from("answers")
+            .select("*")
+            .eq("quiz_id", quizId)
+            .then(({ data }) => {
+              if (data) setAnswers(data);
+            });
         }
       )
       .subscribe();

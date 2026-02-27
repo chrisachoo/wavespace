@@ -4,17 +4,20 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { createClient } from "@/lib/supabase/client";
 import { Zap } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { type FormEvent, useState } from "react";
 
 export function JoinQuizForm() {
-  const [code, setCode] = useState("");
+  const searchParams = useSearchParams();
+  const initialCode = (searchParams.get("code") ?? "").toUpperCase();
+
+  const [code, setCode] = useState(initialCode);
   const [nickname, setNickname] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  async function handleJoin(e: React.SubmitEvent<HTMLFormElement>) {
+  async function handleJoin(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError("");
 
