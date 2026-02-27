@@ -21,26 +21,58 @@ export function DriverClient({ quizId }: Readonly<DriverClientProps>) {
     null
   );
   const [questionTimeLeft, setQuestionTimeLeft] = useState<number | null>(null);
+  const [resolvedQuizId, setResolvedQuizId] = useState<string | null>(null);
 
   const fetchData = useCallback(async () => {
     const supabase = createClient();
-    const [quizRes, questionsRes, participantsRes, answersRes] =
-      await Promise.all([
-        supabase.from("quizzes").select("*").eq("id", quizId).single(),
-        supabase
-          .from("questions")
-          .select("*")
-          .eq("quiz_id", quizId)
-          .order("sort_order"),
-        supabase
-          .from("participants")
-          .select("*")
-          .eq("quiz_id", quizId)
-          .order("score", { ascending: false }),
-        supabase.from("answers").select("*").eq("quiz_id", quizId),
-      ]);
+    const trimmedKey = quizId.trim();
 
-    if (quizRes.data) setQuiz(quizRes.data);
+    // First try to find quiz by ID, then fall back to code so the driver URL
+    // can be opened using either the quiz id or the public quiz code.
+    const { data: quizById } = await supabase
+      .from("quizzes")
+      .select("*")
+      .eq("id", trimmedKey)
+      .single();
+
+    let quizData = quizById as Quiz | null;
+
+    if (!quizData) {
+      const { data: quizByCode } = await supabase
+        .from("quizzes")
+        .select("*")
+        .eq("code", trimmedKey.toUpperCase())
+        .single();
+      quizData = (quizByCode as Quiz | null) ?? null;
+    }
+
+    if (!quizData) {
+      setQuiz(null);
+      setQuestions([]);
+      setParticipants([]);
+      setAnswers([]);
+      setResolvedQuizId(null);
+      setLoading(false);
+      return;
+    }
+
+    setQuiz(quizData);
+    setResolvedQuizId(quizData.id);
+
+    const [questionsRes, participantsRes, answersRes] = await Promise.all([
+      supabase
+        .from("questions")
+        .select("*")
+        .eq("quiz_id", quizData.id)
+        .order("sort_order"),
+      supabase
+        .from("participants")
+        .select("*")
+        .eq("quiz_id", quizData.id)
+        .order("score", { ascending: false }),
+      supabase.from("answers").select("*").eq("quiz_id", quizData.id),
+    ]);
+
     if (questionsRes.data) setQuestions(questionsRes.data);
     if (participantsRes.data) setParticipants(participantsRes.data);
     if (answersRes.data) setAnswers(answersRes.data);
@@ -55,16 +87,18 @@ export function DriverClient({ quizId }: Readonly<DriverClientProps>) {
   }, [fetchData]);
 
   useEffect(() => {
+    if (!resolvedQuizId) return;
+
     const supabase = createClient();
     const channel = supabase
-      .channel(`driver-quiz-${quizId}`)
+      .channel(`driver-quiz-${resolvedQuizId}`)
       .on(
         "postgres_changes",
         {
           event: "UPDATE",
           schema: "public",
           table: "quizzes",
-          filter: `id=eq.${quizId}`,
+          filter: `id=eq.${resolvedQuizId}`,
         },
         (payload) => {
           setQuiz(payload.new as Quiz);
@@ -76,13 +110,13 @@ export function DriverClient({ quizId }: Readonly<DriverClientProps>) {
           event: "*",
           schema: "public",
           table: "participants",
-          filter: `quiz_id=eq.${quizId}`,
+          filter: `quiz_id=eq.${resolvedQuizId}`,
         },
         () => {
           const s = createClient();
           s.from("participants")
             .select("*")
-            .eq("quiz_id", quizId)
+            .eq("quiz_id", resolvedQuizId)
             .order("score", { ascending: false })
             .then(({ data }) => {
               if (data) setParticipants(data);
@@ -95,13 +129,13 @@ export function DriverClient({ quizId }: Readonly<DriverClientProps>) {
           event: "*",
           schema: "public",
           table: "answers",
-          filter: `quiz_id=eq.${quizId}`,
+          filter: `quiz_id=eq.${resolvedQuizId}`,
         },
         () => {
           const s = createClient();
           s.from("answers")
             .select("*")
-            .eq("quiz_id", quizId)
+            .eq("quiz_id", resolvedQuizId)
             .then(({ data }) => {
               if (data) setAnswers(data);
             });
@@ -112,7 +146,7 @@ export function DriverClient({ quizId }: Readonly<DriverClientProps>) {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [quizId]);
+  }, [resolvedQuizId]);
 
   // Countdown for current question so driver can see remaining time
   useEffect(() => {
